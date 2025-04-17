@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { SendIcon, User } from "lucide-react"
+import { sendMessage } from "@/utils/sendMessage"
 
 type Message = {
   id: string
@@ -80,7 +81,7 @@ export default function Chatbot() {
     scrollToBottom()
   }, [messages])
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async(e: React.FormEvent) => {
     console.log("sending message...")
     e.preventDefault()
     if (!input.trim()) return
@@ -96,18 +97,23 @@ export default function Chatbot() {
     setInput("")
     setIsTyping(true)
 
-    // Simulate bot response after a delay
-    setTimeout(() => {
-      const randomResponse = mockResponses[Math.floor(Math.random() * mockResponses.length)]
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: randomResponse,
-        sender: "bot",
-        timestamp: new Date(),
-      }
+    let botResponse = await sendMessage(input)
+    console.log("Bot message: ",botResponse)
+    if (!botResponse){
+      botResponse = "Ha habido un error al obtener una respuesta de SonIA"
+    }
+    const botMessage:Message = {
+      id: (Date.now() + 1).toString(),
+      content: botResponse,
+      sender:"bot",
+      timestamp: new Date()
+    }
+
+
+
       setMessages((prev) => [...prev, botMessage])
       setIsTyping(false)
-    }, 1500)
+   
   }
 
   return (

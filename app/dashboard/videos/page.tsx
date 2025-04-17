@@ -25,15 +25,7 @@ const videoProgram = [
           "Este es el primer paso para transformar el sueño de tu bebé. En este video te explicaremos cómo funciona el programa, qué esperar en las próximas semanas y cómo aprovechar al máximo cada herramienta.",
         videoUrl: "/videos/dia_1/primero.mp4",
       },
-      {
-        id: "v2",
-        title: "Cómo prepararte para el proceso",
-        duration: "",
-        thumbnail: "/images/segundo_vid_cap.png",
-        description:
-          "Descubre cómo organizarte para que este proceso sea más sencillo. Te explicaremos cómo usar el registro de sueño, entender la edad corregida y mantener la constancia para lograr los resultados que tanto deseas.",
-        videoUrl: "/videos/dia_1/segundo.mp4",
-      },
+    
     ],
   },
   {
@@ -48,25 +40,7 @@ const videoProgram = [
         description:
           "¿Sabías que el sueño de tu bebé es diferente al de los adultos? Aprende sobre sus ciclos de sueño y por qué se despierta tanto.",
         videoUrl: "https://example.com/video3.mp4",
-      },
-      {
-        id: "v4",
-        title: "Bases de sueño saludable",
-        duration: "2:45",
-        thumbnail: "/placeholder.svg?height=180&width=320",
-        description:
-          "Construir buenos hábitos de sueño comienza aquí. Aprende cuáles son los pilares de un descanso reparador y cómo aplicarlos en casa.",
-        videoUrl: "https://example.com/video4.mp4",
-      },
-      {
-        id: "v5",
-        title: "Señales de sueño",
-        duration: "2:30",
-        thumbnail: "/placeholder.svg?height=180&width=320",
-        description:
-          "Identificar cuándo tu bebé está listo para dormir puede marcar la diferencia. Descubre las señales para evitar el sobrecansancio.",
-        videoUrl: "https://example.com/video5.mp4",
-      },
+      }
     ],
   },
   {
@@ -81,16 +55,7 @@ const videoProgram = [
         description:
           "¿Qué piezas necesitas para que el sueño de tu bebé funcione? Aprende a combinarlas para lograr noches más tranquilas.",
         videoUrl: "https://example.com/video6.mp4",
-      },
-      {
-        id: "v7",
-        title: "Asociaciones de sueño",
-        duration: "12:25",
-        thumbnail: "/placeholder.svg?height=180&width=320",
-        description:
-          "Descubre cómo las formas en que tu bebé se duerme influyen en su capacidad para dormir toda la noche.",
-        videoUrl: "https://example.com/video7.mp4",
-      },
+      }
     ],
   },
 ]
@@ -267,45 +232,18 @@ export default function VideosPage() {
                       <Card>
                         <CardHeader>
                           <CardTitle>{module.module}</CardTitle>
-                          <CardDescription>{module.videos.length} videos en este módulo</CardDescription>
                         </CardHeader>
                         <CardContent>
                           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            {module.videos.map((video) => (
-                              <Card
-                                key={video.id}
-                                className={`cursor-pointer transition-all hover:shadow-md ${
-                                  selectedVideo?.id === video.id ? "ring-2 ring-primary" : ""
-                                }`}
-                                onClick={() => handleVideoSelect(video)}
-                              >
-                                <div className="relative">
-                                  <img
-                                    src={video.thumbnail || "/placeholder.svg"}
-                                    alt={video.title}
-                                    className="w-full rounded-t-lg object-cover h-[180px]"
-                                  />
-                                  <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="rounded-full bg-black/50 p-3">
-                                      <Play className="h-6 w-6 text-white" />
-                                    </div>
-                                  </div>
-                                  {isVideoCompleted(video.id) && (
-                                    <div className="absolute top-2 right-2">
-                                      <Badge className="bg-green-500">Completado</Badge>
-                                    </div>
-                                  )}
-                                  <div className="absolute bottom-2 right-2">
-                                    <Badge variant="outline" className="bg-black/70 text-white">
-                                      {video.duration}
-                                    </Badge>
-                                  </div>
-                                </div>
-                                <CardContent className="p-4">
-                                  <h3 className="font-medium line-clamp-2">{video.title}</h3>
-                                </CardContent>
-                              </Card>
-                            ))}
+                            {module.videos.map((video) => (                             
+                                //TODO: Change this   
+                                <VideoPlayer key={video.id}
+                                 videoUrl={video.videoUrl}
+                                 thumbnail={video.thumbnail}
+                                 onComplete={handleVideoComplete}
+                                 />
+                                )
+                            )}
                           </div>
                         </CardContent>
                       </Card>
@@ -324,44 +262,15 @@ export default function VideosPage() {
                 <Card key={module.id}>
                   <CardHeader>
                     <CardTitle>{module.module}</CardTitle>
-                    <CardDescription>{module.videos.length} videos en este módulo</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-1 h-80">
                       {module.videos.map((video) => (
-                        <Card
-                          key={video.id}
-                          className={`cursor-pointer transition-all hover:shadow-md ${
-                            selectedVideo?.id === video.id ? "ring-2 ring-primary" : ""
-                          }`}
-                          onClick={() => handleVideoSelect(video)}
-                        >
-                          <div className="relative">
-                            <img
-                              src={video.thumbnail || "/placeholder.svg"}
-                              alt={video.title}
-                              className="w-full rounded-t-lg object-cover h-[180px]"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <div className="rounded-full bg-black/50 p-3">
-                                <Play className="h-6 w-6 text-white" />
-                              </div>
-                            </div>
-                            {isVideoCompleted(video.id) && (
-                              <div className="absolute top-2 right-2">
-                                <Badge className="bg-green-500">Completado</Badge>
-                              </div>
-                            )}
-                            <div className="absolute bottom-2 right-2">
-                              <Badge variant="outline" className="bg-black/70 text-white">
-                                {video.duration}
-                              </Badge>
-                            </div>
-                          </div>
-                          <CardContent className="p-4">
-                            <h3 className="font-medium line-clamp-2">{video.title}</h3>
-                          </CardContent>
-                        </Card>
+                           <VideoPlayer key={video.id}
+                           videoUrl={video.videoUrl}
+                           thumbnail={video.thumbnail}
+                           onComplete={handleVideoComplete}
+                           />
                       ))}
                     </div>
                   </CardContent>
@@ -371,36 +280,7 @@ export default function VideosPage() {
         </div>
       </div>
 
-      {selectedVideo && (
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>{selectedVideo.title}</CardTitle>
-            <CardDescription>{selectedVideo.description}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <VideoPlayer
-              videoUrl={selectedVideo.videoUrl}
-              thumbnail={selectedVideo.thumbnail}
-              onComplete={handleVideoComplete}
-            />
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button
-              variant="outline"
-              onClick={() => {
-                if (user) {
-                  markVideoAsCompleted(user.id, selectedVideo.id)
-                  const updatedProgress = getUserProgress(user.id)
-                  setUserProgress(updatedProgress)
-                }
-              }}
-              disabled={isVideoCompleted(selectedVideo.id)}
-            >
-              {isVideoCompleted(selectedVideo.id) ? "Completado" : "Marcar como completado"}
-            </Button>
-          </CardFooter>
-        </Card>
-      )}
+     
     </div>
   )
 }

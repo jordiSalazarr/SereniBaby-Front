@@ -1,192 +1,76 @@
 "use client"
 
-import type React from "react"
-
-import { FaSun, FaMoon } from 'react-icons/fa';
-import {Calendar as NewCalendar} from 'react-calendar';
-import { useState, useEffect } from "react"
-import 'react-calendar/dist/Calendar.css';
+import { useState } from "react"
 import { useAuth } from "@/components/auth-provider"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { saveSleepLog, saveNap, getSleepLogs, getNaps, type SleepLog, type Nap } from "@/lib/local-storage"
-import { MoonIcon, SunIcon, Clock, Play, Square, Plus, Trash2, Calendar } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar, AlarmClock, Moon, Sunrise, Sunset, Play, Square, Clock } from "lucide-react"
+import { saveSleepLog, saveNap } from "@/lib/local-storage"
+import {Calendar as NewCalendar} from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 
-// Modificar el tipo WakeupEvent para incluir duración
-type WakeupEvent = {
-  id: string
-  time: string
-  endTime?: string // Hora de fin opcional
-  duration?: number // Duración en segundos
-  notes: string
-}
 
-export default function SleepLogPage() {
+type ValuePiece = Date | null;
+
+type Value = ValuePiece | [ValuePiece, ValuePiece];
+
+export default function ProgramaPage() {
   const { user } = useAuth()
-  const [sleepTime, setSleepTime] = useState("")
-  const [wakeTime, setWakeTime] = useState("")
-  const [napStart, setNapStart] = useState("")
-  const [napEnd, setNapEnd] = useState("")
-  const [notes, setNotes] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [sleepLogs, setSleepLogs] = useState<SleepLog[]>([])
-  const [naps, setNaps] = useState<Nap[]>([])
-  const [sleepOption,setSleepOption] = useState("")
 
-  // Estado para el selector de fecha
-  const [selectedDate, setSelectedDate] = useState<any>(new Date())
+  // Estado para la fecha seleccionada
+  const [value, onChangeVal] = useState<Value>(new Date());
+
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const formattedDate = format(selectedDate, "yyyy-MM-dd")
 
-  // Estado para el cronómetro de siesta
-  const [isNapRunning, setIsNapRunning] = useState(false)
-  const [napStartTime, setNapStartTime] = useState<Date | null>(null)
-  const [napDuration, setNapDuration] = useState(0)
+  // Estado para el widget activo
+  const [activeWidget, setActiveWidget] = useState<string | null>(null)
 
-  // Estado para los despertares nocturnos
-  const [wakeupEvents, setWakeupEvents] = useState<WakeupEvent[]>([])
-  const [newWakeupTime, setNewWakeupTime] = useState("")
-  const [newWakeupNotes, setNewWakeupNotes] = useState("")
+  // Estados para los timers
+  const [isTimerRunning, setIsTimerRunning] = useState(false)
+  const [timerStartTime, setTimerStartTime] = useState<Date | null>(null)
+  const [timerDuration, setTimerDuration] = useState(0)
 
-  // Añadir estados para el cronómetro de despertares
-  const [activeWakeupId, setActiveWakeupId] = useState<string | null>(null)
-  const [wakeupStartTime, setWakeupStartTime] = useState<Date | null>(null)
-  const [wakeupDuration, setWakeupDuration] = useState(0)
+  // Estados para los formularios
+  const [wakeUpTime, setWakeUpTime] = useState("")
+  const [bedTime, setBedTime] = useState("")
+  const [napStartTime, setNapStartTime] = useState("")
+  const [napEndTime, setNapEndTime] = useState("")
+  const [nightWakeStartTime, setNightWakeStartTime] = useState("")
+  const [nightWakeEndTime, setNightWakeEndTime] = useState("")
+  const [notes, setNotes] = useState("")
 
-  // Estados para minutos previos
-  const [previousNapMinutes, setPreviousNapMinutes] = useState(0)
-  const [previousWakeupMinutes, setPreviousWakeupMinutes] = useState(0)
+  // Estado para minutos previos
+  const [previousMinutes, setPreviousMinutes] = useState(0)
 
-  useEffect(() => {
-    if (user) {
-      // Load sleep logs and naps from local storage
-      setSleepLogs(getSleepLogs(user.id))
-      setNaps(getNaps(user.id))
-    }
-  }, [user])
+  // Estado para mostrar mensaje de éxito
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [successMessage, setSuccessMessage] = useState("")
 
-  // Efecto para el cronómetro de siesta
-  useEffect(() => {
+  // Efecto para el cronómetro
+  useState(() => {
     let interval: NodeJS.Timeout | null = null
 
-    if (isNapRunning && napStartTime) {
+    if (isTimerRunning && timerStartTime) {
       interval = setInterval(() => {
         const now = new Date()
-        const diff = now.getTime() - napStartTime.getTime()
-        setNapDuration(Math.floor(diff / 1000))
+        const diff = now.getTime() - timerStartTime.getTime()
+        setTimerDuration(Math.floor(diff / 1000))
       }, 1000)
     }
 
     return () => {
       if (interval) clearInterval(interval)
     }
-  }, [isNapRunning, napStartTime])
-
-  // Añadir efecto para el cronómetro de despertares
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null
-
-    if (activeWakeupId && wakeupStartTime) {
-      interval = setInterval(() => {
-        const now = new Date()
-        const diff = now.getTime() - wakeupStartTime.getTime()
-        setWakeupDuration(Math.floor(diff / 1000))
-      }, 1000)
-    }
-
-    return () => {
-      if (interval) clearInterval(interval)
-    }
-  }, [activeWakeupId, wakeupStartTime])
-
-  const handleSleepLogSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    // if (!user) return
-
-    setLoading(true)
-    try {
-      const newLog = saveSleepLog({
-        userId: "random",
-        date: formattedDate,
-        sleepTime,
-        wakeTime,
-        isSleepHour: sleepOption === "sleep",
-        wakeups: wakeupEvents.length,
-        notes: JSON.stringify(wakeupEvents), // Guardar los despertares como JSON en el campo notes
-      })
-
-      // Update the UI with the new log
-      setSleepLogs([...sleepLogs, newLog])
-
-      // Reset form
-      setSleepTime("")
-      setWakeTime("")
-      setWakeupEvents([])
-      setNotes("")
-
-      alert("Registro de sueño guardado correctamente")
-    } catch (error) {
-      console.error("Error adding sleep log:", error)
-      alert("Error al guardar el registro de sueño")
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleNapSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    // if (!user) return
-
-    setLoading(true)
-    try {
-      const newNap = saveNap({
-        userId: "random",
-        date: formattedDate,
-        startTime: napStart,
-        endTime: napEnd,
-        notes,
-      })
-
-      // Update the UI with the new nap
-      setNaps([...naps, newNap])
-
-      // Reset form
-      setNapStart("")
-      setNapEnd("")
-      setNotes("")
-
-      alert("Siesta registrada correctamente")
-    } catch (error) {
-      console.error("Error adding nap:", error)
-      alert("Error al guardar la siesta")
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // Función para iniciar el cronómetro de siesta
-  const startNap = () => {
-    const now = new Date()
-    setNapStartTime(now)
-    setNapStart(format(now, "HH:mm"))
-    setIsNapRunning(true)
-  }
-
-  // Función para detener el cronómetro de siesta
-  const stopNap = () => {
-    if (!napStartTime) return
-
-    const now = new Date()
-    setNapEnd(format(now, "HH:mm"))
-    setIsNapRunning(false)
-  }
+  })
 
   // Función para formatear la duración del cronómetro
   const formatDuration = (seconds: number) => {
@@ -197,96 +81,150 @@ export default function SleepLogPage() {
     return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
   }
 
-  // Modificar la función para agregar un despertar
-  const addWakeupEvent = () => {
-    if (!newWakeupTime) return
-
-    const newEvent: WakeupEvent = {
-      id: Date.now().toString(),
-      time: newWakeupTime,
-      notes: newWakeupNotes,
-    }
-
-    setWakeupEvents([...wakeupEvents, newEvent])
-    setNewWakeupTime("")
-    setNewWakeupNotes("")
-  }
-
-  // Añadir función para iniciar el cronómetro de despertar
-  const startWakeupTimer = () => {
-    const now = new Date()
-    const newWakeupId = Date.now().toString()
-
-    const newEvent: WakeupEvent = {
-      id: newWakeupId,
-      time: format(now, "HH:mm"),
-      notes: "",
-    }
-
-    setWakeupEvents([...wakeupEvents, newEvent])
-    setActiveWakeupId(newWakeupId)
-    setWakeupStartTime(now)
-  }
-
-  // Añadir función para detener el cronómetro de despertar
-  const stopWakeupTimer = () => {
-    if (!activeWakeupId || !wakeupStartTime) return
-
-    const now = new Date()
-    const endTime = format(now, "HH:mm")
-    const duration = wakeupDuration
-
-    setWakeupEvents(
-      wakeupEvents.map((event) => (event.id === activeWakeupId ? { ...event, endTime, duration } : event)),
-    )
-
-    setActiveWakeupId(null)
-    setWakeupStartTime(null)
-    setWakeupDuration(0)
-  }
-
-  // Modificar la función para actualizar las notas de un despertar
-  const updateWakeupNotes = (id: string, notes: string) => {
-    setWakeupEvents(wakeupEvents.map((event) => (event.id === id ? { ...event, notes } : event)))
-  }
-
-  // Función para eliminar un despertar nocturno
-  const removeWakeupEvent = (id: string) => {
-    setWakeupEvents(wakeupEvents.filter((event) => event.id !== id))
-  }
-
-  // Función para iniciar el cronómetro de siesta teniendo en cuenta minutos previos
-  const startNapWithPrevious = () => {
+  // Función para iniciar el cronómetro
+  const startTimer = () => {
     const now = new Date()
 
     // Si hay minutos previos, ajustamos la hora de inicio
-    if (previousNapMinutes > 0) {
-      const adjustedStartTime = new Date(now.getTime() - previousNapMinutes * 60 * 1000)
-      setNapStartTime(adjustedStartTime)
-      setNapStart(format(adjustedStartTime, "HH:mm"))
-      setNapDuration(previousNapMinutes * 60) // Establecer la duración inicial en segundos
+    if (previousMinutes > 0) {
+      const adjustedStartTime = new Date(now.getTime() - previousMinutes * 60 * 1000)
+      setTimerStartTime(adjustedStartTime)
+
+      if (activeWidget === "siesta") {
+        setNapStartTime(format(adjustedStartTime, "HH:mm"))
+      } else if (activeWidget === "despertar-nocturno") {
+        setNightWakeStartTime(format(adjustedStartTime, "HH:mm"))
+      }
+
+      setTimerDuration(previousMinutes * 60) // Establecer la duración inicial en segundos
     } else {
-      setNapStartTime(now)
-      setNapStart(format(now, "HH:mm"))
+      setTimerStartTime(now)
+
+      if (activeWidget === "siesta") {
+        setNapStartTime(format(now, "HH:mm"))
+      } else if (activeWidget === "despertar-nocturno") {
+        setNightWakeStartTime(format(now, "HH:mm"))
+      }
     }
 
-    setIsNapRunning(true)
+    setIsTimerRunning(true)
+  }
+
+  // Función para detener el cronómetro
+  const stopTimer = () => {
+    if (!timerStartTime) return
+
+    const now = new Date()
+
+    if (activeWidget === "siesta") {
+      setNapEndTime(format(now, "HH:mm"))
+    } else if (activeWidget === "despertar-nocturno") {
+      setNightWakeEndTime(format(now, "HH:mm"))
+    }
+
+    setIsTimerRunning(false)
+  }
+
+  // Función para guardar los datos
+  const handleSave = () => {
+    if (!user) return
+
+    try {
+      if (activeWidget === "despertar") {
+        // Guardar hora de despertar
+        saveSleepLog({
+          userId: user.id,
+          date: formattedDate,
+          sleepTime: "", // Se completará cuando se registre la hora de acostarse
+          wakeTime: wakeUpTime,
+          wakeups: 0,
+          notes: notes,
+          isSleepHour:false
+        })
+        setSuccessMessage("Hora de despertar guardada correctamente")
+      } else if (activeWidget === "acostarse") {
+        // Guardar hora de acostarse
+        saveSleepLog({
+          userId: user.id,
+          date: formattedDate,
+          sleepTime: bedTime,
+          wakeTime: "", // Se completará cuando se registre la hora de despertar
+          wakeups: 0,
+          notes: notes,
+          isSleepHour:true
+        })
+        setSuccessMessage("Hora de acostarse guardada correctamente")
+      } else if (activeWidget === "siesta") {
+        // Guardar siesta
+        saveNap({
+          userId: user.id,
+          date: formattedDate,
+          startTime: napStartTime,
+          endTime: napEndTime,
+          notes: notes,
+        })
+        setSuccessMessage("Siesta guardada correctamente")
+      } else if (activeWidget === "despertar-nocturno") {
+        // Guardar despertar nocturno como nota en el registro de sueño
+        const wakeupEvent = {
+          time: nightWakeStartTime,
+          endTime: nightWakeEndTime,
+          duration: timerDuration,
+          notes: notes,
+        }
+
+        saveSleepLog({
+          userId: user.id,
+          date: formattedDate,
+          sleepTime: "",
+          wakeTime: "",
+          wakeups: 1,
+          notes: JSON.stringify([wakeupEvent]),
+          isSleepHour:true
+        })
+        setSuccessMessage("Despertar nocturno guardado correctamente")
+      }
+
+      // Mostrar mensaje de éxito
+      setShowSuccess(true)
+      setTimeout(() => setShowSuccess(false), 3000)
+
+      // Resetear formulario
+      resetForm()
+    } catch (error) {
+      console.error("Error guardando datos:", error)
+    }
+  }
+
+  // Función para resetear el formulario
+  const resetForm = () => {
+    setActiveWidget(null)
+    setWakeUpTime("")
+    setBedTime("")
+    setNapStartTime("")
+    setNapEndTime("")
+    setNightWakeStartTime("")
+    setNightWakeEndTime("")
+    setNotes("")
+    setPreviousMinutes(0)
+    setTimerStartTime(null)
+    setTimerDuration(0)
+    setIsTimerRunning(false)
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Registro de Sueño</h1>
-        <p className="mt-2 text-gray-600">
-          Registra los patrones de sueño de tu hijo para obtener recomendaciones personalizadas
-        </p>
+        <h1 className="text-3xl font-bold text-gray-900">Programa de Sueño</h1>
+        <p className="mt-2 text-gray-600">Registra los horarios de sueño de tu hijo</p>
       </div>
 
       {/* Selector de fecha */}
-      <Card >
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5 text-primary" />
+
             Seleccionar Fecha
           </CardTitle>
         </CardHeader>
@@ -295,12 +233,12 @@ export default function SleepLogPage() {
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-full sm:w-auto justify-start text-left font-normal">
-                  <Calendar className="mr-2 h-4 w-4" />
-                  {format(selectedDate, "PPP", { locale: es })}
+                {format(selectedDate, "PPP", { locale: es })}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
-              <NewCalendar onChange={(date) => date && setSelectedDate(date)} value={selectedDate} />
+                <NewCalendar  onChange={()=>setSelectedDate} value={selectedDate} />
+
               </PopoverContent>
             </Popover>
             <p className="text-sm text-muted-foreground">Selecciona la fecha para el registro de sueño</p>
@@ -308,101 +246,199 @@ export default function SleepLogPage() {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="night" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="night" className="flex items-center">
-            <MoonIcon className="mr-2 h-4 w-4" />
-            Hora de despertar y acostar
-          </TabsTrigger>
-          <TabsTrigger value="nap" className="flex items-center">
-            <SunIcon className="mr-2 h-4 w-4" />
-            Siestas
-          </TabsTrigger>
-        </TabsList>
+      {/* Widgets principales */}
+      {!activeWidget && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => setActiveWidget("despertar")}
+          >
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="rounded-full bg-orange-100 p-3">
+                  <Sunrise className="h-6 w-6 text-orange-500" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium">Hora de despertar</h3>
+                  <p className="text-sm text-gray-500">Registra a qué hora se despertó tu hijo</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-        <TabsContent value="night">
-         <Card>
-  <CardHeader>
-    <CardTitle>Registrar Sueño</CardTitle>
-    <CardDescription>Selecciona el tipo de registro e ingresa la hora</CardDescription>
-  </CardHeader>
-  <CardContent>
-    <form onSubmit={handleSleepLogSubmit} className="space-y-4">
-      <div className="space-y-2 flex flex-col">
-        <Label htmlFor="entryType">Tipo de registro:   </Label>
-        <select
-          id="entryType"
-          className="w-full sm:w-1/2 rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          value={sleepOption}
-          onChange={(e) => setSleepOption(e.target.value)}
-          required
-        >
-          <option value="">Selecciona una opción</option>
-          <option value="wake">Hora de despertar</option>
-          <option value="sleep">Hora de dormir</option>
-        </select>
-      </div>
+          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveWidget("siesta")}>
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="rounded-full bg-primary/10 p-3">
+                  <AlarmClock className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium">Siesta</h3>
+                  <p className="text-sm text-gray-500">Registra las siestas durante el día</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-      <div className="space-y-2">
-        <Label htmlFor="entryTime">Hora</Label>
-        <div className="flex items-center">
-          <Input
-           className="w-full sm:w-1/2"
-            id="entryTime"
-            type="time"
-            value={sleepTime}
-            onChange={(e) => setSleepTime(e.target.value)}
-            required
-          />
+          <Card
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => setActiveWidget("despertar-nocturno")}
+          >
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="rounded-full bg-secondary/10 p-3">
+                  <Moon className="h-6 w-6 text-secondary" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium">Despertar nocturno</h3>
+                  <p className="text-sm text-gray-500">Registra los despertares durante la noche</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => setActiveWidget("acostarse")}
+          >
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="rounded-full bg-blue-100 p-3">
+                  <Sunset className="h-6 w-6 text-blue-500" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium">Hora de acostarse</h3>
+                  <p className="text-sm text-gray-500">Registra a qué hora se acostó tu hijo</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-      </div>
+      )}
 
+      {/* Formulario para Hora de despertar */}
+      {activeWidget === "despertar" && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sunrise className="h-5 w-5 text-orange-500" />
+              Hora de despertar
+            </CardTitle>
+            <CardDescription>Registra a qué hora se despertó tu hijo</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="wakeUpTime">Hora de despertar</Label>
+              <div className="flex items-center">
+                <Clock className="mr-2 h-4 w-4 text-gray-500" />
+                <Input
+                  id="wakeUpTime"
+                  type="time"
+                  value={wakeUpTime}
+                  onChange={(e) => setWakeUpTime(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
 
-                {/* Sección de despertares nocturnos */}
-                {/* <div className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label>Despertares nocturnos ({wakeupEvents.length})</Label>
-                      <div className="flex gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={startWakeupTimer}
-                          disabled={!!activeWakeupId}
-                          className="flex items-center gap-1 text-green-500"
-                        >
-                          <Play className="h-4 w-4" />
-                          Iniciar despertar
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={addWakeupEvent}
-                          disabled={!newWakeupTime || !!activeWakeupId}
-                          className="flex items-center gap-1"
-                        >
-                          <Plus className="h-4 w-4" />
-                          Agregar manualmente
-                        </Button>
-                      </div>
-                    </div>
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notas adicionales</Label>
+              <Textarea
+                id="notes"
+                placeholder="Cualquier observación relevante..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button variant="outline" onClick={resetForm}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSave} disabled={!wakeUpTime}>
+              Guardar
+            </Button>
+          </CardFooter>
+        </Card>
+      )}
 
-                    {!activeWakeupId && (
-                      <div className="flex items-center justify-end gap-2">
-                        <Label htmlFor="previousWakeupMinutes" className="text-sm whitespace-nowrap">
-                          ¿Ya lleva despierto?
+      {/* Formulario para Hora de acostarse */}
+      {activeWidget === "acostarse" && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sunset className="h-5 w-5 text-blue-500" />
+              Hora de acostarse
+            </CardTitle>
+            <CardDescription>Registra a qué hora se acostó tu hijo</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="bedTime">Hora de acostarse</Label>
+              <div className="flex items-center">
+                <Clock className="mr-2 h-4 w-4 text-gray-500" />
+                <Input id="bedTime" type="time" value={bedTime} onChange={(e) => setBedTime(e.target.value)} required />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notas adicionales</Label>
+              <Textarea
+                id="notes"
+                placeholder="Cualquier observación relevante..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button variant="outline" onClick={resetForm}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSave} disabled={!bedTime}>
+              Guardar
+            </Button>
+          </CardFooter>
+        </Card>
+      )}
+
+      {/* Formulario para Siesta */}
+      {activeWidget === "siesta" && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlarmClock className="h-5 w-5 text-primary" />
+              Siesta
+            </CardTitle>
+            <CardDescription>Registra las siestas durante el día</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Tabs defaultValue="timer" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="timer">Cronómetro</TabsTrigger>
+                <TabsTrigger value="manual">Programado</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="timer" className="space-y-4">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label>Cronómetro de siesta</Label>
+                    {!isTimerRunning && (
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="previousMinutes" className="text-sm whitespace-nowrap">
+                          ¿Ya lleva durmiendo?
                         </Label>
                         <div className="flex items-center gap-1">
                           <Input
-                            id="previousWakeupMinutes"
+                            id="previousMinutes"
                             type="number"
                             min="0"
                             max="300"
                             placeholder="0"
                             className="w-20"
-                            onChange={(e) => setPreviousWakeupMinutes(Number.parseInt(e.target.value) || 0)}
+                            onChange={(e) => setPreviousMinutes(Number.parseInt(e.target.value) || 0)}
                           />
                           <span className="text-sm">min</span>
                         </div>
@@ -410,123 +446,45 @@ export default function SleepLogPage() {
                     )}
                   </div>
 
-                  {activeWakeupId && (
-                    <div className="rounded-md border border-yellow-300 bg-yellow-50 p-4">
-                      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                        <div>
-                          <h4 className="font-medium text-yellow-800">Despertar en curso</h4>
-                          <p className="text-sm text-yellow-700">
-                            Inicio: {wakeupEvents.find((e) => e.id === activeWakeupId)?.time || ""}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <div className="text-2xl font-mono text-yellow-800">{formatDuration(wakeupDuration)}</div>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={stopWakeupTimer}
-                            className="text-red-500"
-                          >
-                            <Square className="h-4 w-4 mr-1" />
-                            Finalizar
-                          </Button>
-                        </div>
-                      </div>
+                  <div className="flex items-center gap-4">
+                    <div className="rounded-md border p-3 text-center w-full">
+                      <span className="text-2xl font-mono">{formatDuration(timerDuration)}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={startTimer}
+                        disabled={isTimerRunning}
+                        className="text-green-500"
+                      >
+                        <Play className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={stopTimer}
+                        disabled={!isTimerRunning}
+                        className="text-red-500"
+                      >
+                        <Square className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  {isTimerRunning && <div className="text-sm text-muted-foreground">Inicio: {napStartTime}</div>}
+
+                  {napStartTime && napEndTime && (
+                    <div className="text-sm text-muted-foreground">
+                      Duración: {napStartTime} - {napEndTime}
                     </div>
                   )}
+                </div>
+              </TabsContent>
 
-                  {!activeWakeupId && (
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                      <div className="space-y-2">
-                        <Label htmlFor="wakeupTime">Hora del despertar</Label>
-                        <Input
-                          id="wakeupTime"
-                          type="time"
-                          value={newWakeupTime}
-                          onChange={(e) => setNewWakeupTime(e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2 md:col-span-2">
-                        <Label htmlFor="wakeupNotes">Notas</Label>
-                        <div className="flex gap-2">
-                          <Input
-                            id="wakeupNotes"
-                            placeholder="Motivo del despertar, duración, etc."
-                            value={newWakeupNotes}
-                            onChange={(e) => setNewWakeupNotes(e.target.value)}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Lista de despertares agregados */}
-                  {/* {wakeupEvents.length > 0 && (
-                    <div className="mt-4 space-y-2">
-                      <Label>Despertares registrados:</Label>
-                      <div className="rounded-md border divide-y">
-                        {wakeupEvents.map((event) => (
-                          <div key={event.id} className="p-3">
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-2">
-                                <p className="font-medium">{event.time}</p>
-                                {event.endTime && (
-                                  <>
-                                    <span className="text-gray-500">-</span>
-                                    <p className="font-medium">{event.endTime}</p>
-                                    <span className="text-xs bg-gray-100 px-2 py-1 rounded-full">
-                                      {event.duration ? formatDuration(event.duration) : ""}
-                                    </span>
-                                  </>
-                                )}
-                              </div>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => removeWakeupEvent(event.id)}
-                                className="text-red-500 hover:text-red-700"
-                                disabled={event.id === activeWakeupId}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                            <div className="mt-1">
-                              <Input
-                                placeholder="Añadir notas sobre este despertar..."
-                                value={event.notes}
-                                onChange={(e) => updateWakeupNotes(event.id, e.target.value)}
-                                disabled={event.id === activeWakeupId}
-                              />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div> */} 
-
-<Button
-        type="submit"
-        className="w-full  bg-primary hover:bg-primary/90"
-        disabled={loading}
-      >
-        {loading ? "Guardando..." : "Guardar Registro"}
-      </Button>
-    </form>
-  </CardContent>
-</Card>
-        </TabsContent>
-
-        <TabsContent value="nap">
-          <Card>
-            <CardHeader>
-              <CardTitle>Registrar Siesta</CardTitle>
-              <CardDescription>Ingresa la información de las siestas de tu hijo</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleNapSubmit} className="space-y-4">
+              <TabsContent value="manual" className="space-y-4">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="napStart">Inicio de siesta</Label>
@@ -535,8 +493,8 @@ export default function SleepLogPage() {
                       <Input
                         id="napStart"
                         type="time"
-                        value={napStart}
-                        onChange={(e) => setNapStart(e.target.value)}
+                        value={napStartTime}
+                        onChange={(e) => setNapStartTime(e.target.value)}
                         required
                       />
                     </div>
@@ -549,32 +507,73 @@ export default function SleepLogPage() {
                       <Input
                         id="napEnd"
                         type="time"
-                        value={napEnd}
-                        onChange={(e) => setNapEnd(e.target.value)}
+                        value={napEndTime}
+                        onChange={(e) => setNapEndTime(e.target.value)}
                         required
                       />
                     </div>
                   </div>
                 </div>
+              </TabsContent>
+            </Tabs>
 
-                {/* Cronómetro de siesta */}
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notas adicionales</Label>
+              <Textarea
+                id="notes"
+                placeholder="Cualquier observación relevante..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button variant="outline" onClick={resetForm}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSave} disabled={!napStartTime || !napEndTime}>
+              Guardar
+            </Button>
+          </CardFooter>
+        </Card>
+      )}
+
+      {/* Formulario para Despertar nocturno */}
+      {activeWidget === "despertar-nocturno" && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Moon className="h-5 w-5 text-secondary" />
+              Despertar nocturno
+            </CardTitle>
+            <CardDescription>Registra los despertares durante la noche</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Tabs defaultValue="timer" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="timer">Cronómetro</TabsTrigger>
+                <TabsTrigger value="manual">Programado</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="timer" className="space-y-4">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Label>Cronómetro de siesta</Label>
-                    {!isNapRunning && (
+                    <Label>Cronómetro de despertar</Label>
+                    {!isTimerRunning && (
                       <div className="flex items-center gap-2">
-                        <Label htmlFor="previousNapMinutes" className="text-sm whitespace-nowrap">
-                          ¿Ya lleva durmiendo?
+                        <Label htmlFor="previousMinutes" className="text-sm whitespace-nowrap">
+                          ¿Ya lleva despierto?
                         </Label>
                         <div className="flex items-center gap-1">
                           <Input
-                            id="previousNapMinutes"
+                            id="previousMinutes"
                             type="number"
                             min="0"
                             max="300"
                             placeholder="0"
                             className="w-20"
-                            onChange={(e) => setPreviousNapMinutes(Number.parseInt(e.target.value) || 0)}
+                            onChange={(e) => setPreviousMinutes(Number.parseInt(e.target.value) || 0)}
                           />
                           <span className="text-sm">min</span>
                         </div>
@@ -584,15 +583,15 @@ export default function SleepLogPage() {
 
                   <div className="flex items-center gap-4">
                     <div className="rounded-md border p-3 text-center w-full">
-                      <span className="text-2xl font-mono">{formatDuration(napDuration)}</span>
+                      <span className="text-2xl font-mono">{formatDuration(timerDuration)}</span>
                     </div>
                     <div className="flex gap-2">
                       <Button
                         type="button"
                         variant="outline"
                         size="icon"
-                        onClick={startNapWithPrevious}
-                        disabled={isNapRunning}
+                        onClick={startTimer}
+                        disabled={isTimerRunning}
                         className="text-green-500"
                       >
                         <Play className="h-4 w-4" />
@@ -601,129 +600,91 @@ export default function SleepLogPage() {
                         type="button"
                         variant="outline"
                         size="icon"
-                        onClick={stopNap}
-                        disabled={!isNapRunning}
+                        onClick={stopTimer}
+                        disabled={!isTimerRunning}
                         className="text-red-500"
                       >
                         <Square className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Usa el cronómetro para registrar automáticamente la duración de la siesta. Si el bebé ya lleva
-                    durmiendo, indica los minutos antes de iniciar.
-                  </p>
+
+                  {isTimerRunning && <div className="text-sm text-muted-foreground">Inicio: {nightWakeStartTime}</div>}
+
+                  {nightWakeStartTime && nightWakeEndTime && (
+                    <div className="text-sm text-muted-foreground">
+                      Duración: {nightWakeStartTime} - {nightWakeEndTime}
+                    </div>
+                  )}
                 </div>
+              </TabsContent>
 
-                <div className="space-y-2">
-                  <Label htmlFor="notes">Notas adicionales</Label>
-                  <Textarea
-                    id="notes"
-                    placeholder="Cualquier observación relevante..."
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    rows={3}
-                  />
-                </div>
-
-                <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={loading}>
-                  {loading ? "Guardando..." : "Guardar Siesta"}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Historial de Sueño</CardTitle>
-          <CardDescription>Visualiza los registros de sueño anteriores</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {sleepLogs.length === 0 && naps.length === 0 ? (
-            <div className="flex h-[200px] items-center justify-center">
-              <div className="flex flex-col items-center text-center">
-                <MoonIcon className="h-16 w-16 text-gray-300" />
-                <p className="mt-4 text-gray-500">
-                  Aún no hay registros de sueño. Comienza a registrar el sueño de tu hijo para ver el historial aquí.
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {sleepLogs.length > 0 && (
-                <div>
-                  <h3 className="mb-2 font-medium">Sueño Nocturno</h3>
+              <TabsContent value="manual" className="space-y-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    {sleepLogs.map((log) => (
-                      <div key={log.id} className="rounded-lg border p-3">
-                        <div className="flex justify-between">
-                          <div className="font-medium">
-                            <p>{log.isSleepHour ? 'Acostar' : 'Despertar'} del {new Date(log.date).toLocaleDateString()}</p>
-                            </div>
-                          <div className="text-sm text-gray-500 flex items-center gap-2">
-                            {log.sleepTime}
-                            <p>{log.isSleepHour ? <FaMoon color="purple" /> : < FaSun color="yellow" />}</p>
-                          </div>
-                        </div>
-                        {/* <div className="mt-1 text-sm">Despertares: {log.wakeups}</div>
-                        {log.notes && (
-                          <div className="mt-2">
-                            <p className="text-xs font-medium text-gray-500">Detalles de despertares:</p>
-                            <div className="mt-1 space-y-1">
-                              {(() => {
-                                try {
-                                  const wakeupData = JSON.parse(log.notes) as WakeupEvent[]
-                                  return wakeupData.map((event, index) => (
-                                    <div key={index} className="text-xs text-gray-600 border-l-2 border-gray-200 pl-2">
-                                      <span className="font-medium">{event.time}</span>
-                                      {event.endTime && (
-                                        <>
-                                          <span> - {event.endTime}</span>
-                                          <span className="ml-2 text-xs bg-gray-100 px-1 py-0.5 rounded-full">
-                                            {event.duration ? formatDuration(event.duration) : ""}
-                                          </span>
-                                        </>
-                                      )}
-                                      {event.notes && <span className="block mt-0.5 ml-2">{event.notes}</span>}
-                                    </div>
-                                  ))
-                                } catch (e) {
-                                  return <div className="text-xs text-gray-600">{log.notes}</div>
-                                }
-                              })()}
-                            </div>
-                          </div>
-                        )} */}
-                      </div>
-                    ))}
+                    <Label htmlFor="nightWakeStart">Inicio del despertar</Label>
+                    <div className="flex items-center">
+                      <Clock className="mr-2 h-4 w-4 text-gray-500" />
+                      <Input
+                        id="nightWakeStart"
+                        type="time"
+                        value={nightWakeStartTime}
+                        onChange={(e) => setNightWakeStartTime(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="nightWakeEnd">Fin del despertar</Label>
+                    <div className="flex items-center">
+                      <Clock className="mr-2 h-4 w-4 text-gray-500" />
+                      <Input
+                        id="nightWakeEnd"
+                        type="time"
+                        value={nightWakeEndTime}
+                        onChange={(e) => setNightWakeEndTime(e.target.value)}
+                        required
+                      />
+                    </div>
                   </div>
                 </div>
-              )}
+              </TabsContent>
+            </Tabs>
 
-              {naps.length > 0 && (
-                <div>
-                  <h3 className="mb-2 font-medium">Siestas</h3>
-                  <div className="space-y-2">
-                    {naps.map((nap) => (
-                      <div key={nap.id} className="rounded-lg border p-3">
-                        <div className="flex justify-between">
-                          <div className="font-medium">{new Date(nap.date).toLocaleDateString()}</div>
-                          <div className="text-sm text-gray-500">
-                            {nap.startTime} - {nap.endTime}
-                          </div>
-                        </div>
-                        {nap.notes && <div className="mt-1 text-sm text-gray-600">{nap.notes}</div>}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notas adicionales</Label>
+              <Textarea
+                id="notes"
+                placeholder="Motivo del despertar, comportamiento, etc..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={3}
+              />
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button variant="outline" onClick={resetForm}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSave} disabled={!nightWakeStartTime || !nightWakeEndTime}>
+              Guardar
+            </Button>
+          </CardFooter>
+        </Card>
+      )}
+
+      {/* Mensaje de éxito */}
+      {showSuccess && (
+        <div className="fixed bottom-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-md">
+          <div className="flex items-center">
+            <svg className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span>{successMessage}</span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

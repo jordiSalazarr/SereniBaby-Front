@@ -143,11 +143,10 @@ export default function Chatbot() {
                     </p>
                   </div>
                   {message.sender === "user" && (
-                    <Avatar className="h-8 w-8 bg-secondary">
-                      <AvatarFallback>
-                        <User className="h-4 w-4" />
-                      </AvatarFallback>
-                    </Avatar>
+                     <Avatar className="h-10 w-10 border border-primary">
+                     <AvatarImage src="https://image.spreadshirtmedia.net/image-server/v1/products/T1459A839PA4459PT28D15788152W9496H10000/views/1,width=550,height=550,appearanceId=839,backgroundColor=F2F2F2/capital-de-la-letra-l-con-corazones-pegatina.jpg" alt="Laura" />
+                     <AvatarFallback className="bg-primary text-white">Laura</AvatarFallback>
+                   </Avatar>
                   )}
                 </div>
               </div>

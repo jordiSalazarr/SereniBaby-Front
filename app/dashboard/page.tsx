@@ -9,8 +9,8 @@ import { MoonIcon, Clock, Sun, Home, Lightbulb } from "lucide-react"
 // Datos para el horario recomendado de sueño para un bebé de 9 meses
 const sleepSchedule = {
   wakeTime: "7:30",
-  nap1: "9:00 - 10:30",
-  nap2: "13:00 - 15:00",
+  nap1: "9:00 (Duración 1h - 1.5h)",
+  nap2: "13:00 (Duración 1.5h - 2h)",
   bedtime: "19:00 - 19:30",
 }
 
@@ -61,21 +61,21 @@ export default function Dashboard() {
   return (
     <div className="space-y-8">
       {/* Mensaje de bienvenida personalizado con nuevo degradado */}
-      <div className="rounded-lg bg-gradient-to-r from-[#7bd7c7] to-[#e684c3] p-6 text-center">
+      <div className="rounded-lg bg-[#7bd7c7] p-6 text-center">
         <h1 className="text-3xl font-bold text-white">¡Hola {motherName}!</h1>
         <p className="mt-2 text-lg text-white">Bienvenida a SereniBaby, juntos mejoraremos el sueño de {childName}</p>
       </div>
 
       {/* Video introductorio con YouTube */}
-      <Card>
+      <Card className="h-auto w-full">
         <CardHeader>
           <CardTitle>Video Introductorio</CardTitle>
           <CardDescription>Conoce cómo SereniBaby te ayudará a mejorar el sueño de tu hijo</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="aspect-video overflow-hidden rounded-md">
+          <div className="aspect-video overflow-hidden rounded-md h-96 w-3/4 ml-auto mr-auto mt-5">
             <iframe
-              className="h-full w-full"
+              className="h-96 w-full ml-auto mr-auto"
               src="https://www.youtube.com/embed/GKRXlLAyHKY"
               title="Video introductorio de SereniBaby"
               frameBorder="0"
@@ -97,15 +97,15 @@ export default function Dashboard() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-lg bg-primary/10 p-4">
+            <div className="rounded-lg bg-[#7bd7c7]  p-4">
               <div className="flex items-center gap-2">
                 <Sun className="h-5 w-5 text-primary" />
-                <h3 className="font-medium">Hora de despertar</h3>
+                <h3 className="font-medium">Horas de despertar</h3>
               </div>
               <p className="mt-2 text-lg font-semibold">{sleepSchedule.wakeTime}</p>
             </div>
 
-            <div className="rounded-lg bg-secondary/10 p-4">
+            <div className="rounded-lg bg-[#e684c3] p-4">
               <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5 text-secondary" />
                 <h3 className="font-medium">Siesta 1</h3>
@@ -113,7 +113,7 @@ export default function Dashboard() {
               <p className="mt-2 text-lg font-semibold">{sleepSchedule.nap1}</p>
             </div>
 
-            <div className="rounded-lg bg-accent/10 p-4">
+            <div className="rounded-lg bg-[#7bd7c7]  p-4">
               <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5 text-accent" />
                 <h3 className="font-medium">Siesta 2</h3>
@@ -121,7 +121,7 @@ export default function Dashboard() {
               <p className="mt-2 text-lg font-semibold">{sleepSchedule.nap2}</p>
             </div>
 
-            <div className="rounded-lg bg-[#e684c3]/10 p-4">
+            <div className="rounded-lg bg-[#e684c3] p-4">
               <div className="flex items-center gap-2">
                 <MoonIcon className="h-5 w-5 text-[#e684c3]" />
                 <h3 className="font-medium">Hora de acostarse</h3>

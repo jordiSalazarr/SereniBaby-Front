@@ -33,19 +33,79 @@ const videoProgram = [
     module: "Entendiendo el sueño de tu bebé",
     videos: [
       {
-        id: "v3",
+        id: "v2",
         title: "Fisiología del sueño infantil",
         duration: "10:50",
-        thumbnail: "/placeholder.svg?height=180&width=320",
+        thumbnail: "/images/serenibaby-logo.png",
         description:
           "¿Sabías que el sueño de tu bebé es diferente al de los adultos? Aprende sobre sus ciclos de sueño y por qué se despierta tanto.",
-        videoUrl: "https://example.com/video3.mp4",
+        videoUrl: "/videos/dia_1/segundo.mp4",
       }
     ],
   },
   {
     id: 3,
     module: "Puzzle del sueño",
+    videos: [
+      {
+        id: "v3",
+        title: "El puzzle del sueño",
+        duration: "1:04",
+        thumbnail: "/images/serenibaby-logo.png",
+        description:
+          "¿Qué piezas necesitas para que el sueño de tu bebé funcione? Aprende a combinarlas para lograr noches más tranquilas.",
+        videoUrl: "/videos/dia_3/puzzle.mp4",
+      }
+    ],
+  },
+  {
+    id: 4,
+    module: "Horarios ideales para tu peque",
+    videos: [
+      {
+        id: "v6",
+        title: "Horarios ideales para tu peque",
+        duration: "1:04",
+        thumbnail: "/images/serenibaby-logo.png",
+        description:
+          "¿Qué piezas necesitas para que el sueño de tu bebé funcione? Aprende a combinarlas para lograr noches más tranquilas.",
+        videoUrl: "/videos/dia_3/cuarto.mp4",
+      }
+    ],
+  },
+  {
+    id: 5,
+    module: "Rutinas y siestas",
+    videos: [
+      {
+        id: "v6",
+        title: "El Rutinas y siestas",
+        duration: "1:04",
+        thumbnail: "/images/serenibaby-logo.png",
+        description:
+          "¿Qué piezas necesitas para que el sueño de tu bebé funcione? Aprende a combinarlas para lograr noches más tranquilas.",
+        videoUrl: "/videos/dia_5/rutinas.mp4",
+      }
+    ],
+  },
+  {
+    id: 6,
+    module: "Ambiente de sueño",
+    videos: [
+      {
+        id: "v6",
+        title: "El puzzle del sueño",
+        duration: "1:04",
+        thumbnail: "/images/serenibaby-logo.png",
+        description:
+          "¿Qué piezas necesitas para que el sueño de tu bebé funcione? Aprende a combinarlas para lograr noches más tranquilas.",
+        videoUrl: "https://example.com/video6.mp4",
+      }
+    ],
+  },
+  {
+    id: 7,
+    module: "Sueño seguro y Colecho seguro",
     videos: [
       {
         id: "v6",
@@ -58,6 +118,217 @@ const videoProgram = [
       }
     ],
   },
+  {
+    id: 8,
+    module: "Diseñemos tu plan de sueño - Plan acompañamiento",
+    videos: [
+      {
+        id: "v8",
+        title: "Diseñemos tu plan de sueño - Plan acompañamiento",
+        duration: "1:04",
+        thumbnail: "/placeholder.svg?height=180&width=320",
+        description:
+          "¿Qué piezas necesitas para que el sueño de tu bebé funcione? Aprende a combinarlas para lograr noches más tranquilas.",
+        videoUrl: "https://example.com/video6.mp4",
+      }
+    ],
+  },
+  {
+    id: 9,
+    module: "Tips prácticos",
+    videos: [
+      {
+        id: "v8",
+        title: "Tips prácticos",
+        duration: "1:04",
+        thumbnail: "/placeholder.svg?height=180&width=320",
+        description:
+          "¿Qué piezas necesitas para que el sueño de tu bebé funcione? Aprende a combinarlas para lograr noches más tranquilas.",
+        videoUrl: "https://example.com/video6.mp4",
+      }
+    ],
+  },
+  {
+    id: 10,
+    module: "Despertares nocturnos",
+    videos: [
+      {
+        id: "v8",
+        title: "Despertares nocturnos",
+        duration: "1:04",
+        thumbnail: "/placeholder.svg?height=180&width=320",
+        description:
+          "¿Qué piezas necesitas para que el sueño de tu bebé funcione? Aprende a combinarlas para lograr noches más tranquilas.",
+        videoUrl: "https://example.com/video6.mp4",
+      }
+    ],
+  },
+  {
+    id: 11,
+    module: "Evaluación de avance",
+    videos: [
+      {
+        id: "v8",
+        title: "Evaluación de avance",
+        duration: "1:04",
+        thumbnail: "/placeholder.svg?height=180&width=320",
+        description:
+          "¿Qué piezas necesitas para que el sueño de tu bebé funcione? Aprende a combinarlas para lograr noches más tranquilas.",
+        videoUrl: "https://example.com/video6.mp4",
+      }
+    ],
+  },
+  {
+    id: 12,
+    module: "Eliminando tomas de leche nocturnas",
+    videos: [
+      {
+        id: "v8",
+        title: "Eliminando tomas de leche nocturnas",
+        duration: "1:04",
+        thumbnail: "/placeholder.svg?height=180&width=320",
+        description:
+          "¿Qué piezas necesitas para que el sueño de tu bebé funcione? Aprende a combinarlas para lograr noches más tranquilas.",
+        videoUrl: "https://example.com/video6.mp4",
+      }
+    ],
+  },
+  {
+    id: 13,
+    module: "Peques madrugadores",
+    videos: [
+      {
+        id: "v8",
+        title: "Peques madrugadores",
+        duration: "1:04",
+        thumbnail: "/placeholder.svg?height=180&width=320",
+        description:
+          "¿Qué piezas necesitas para que el sueño de tu bebé funcione? Aprende a combinarlas para lograr noches más tranquilas.",
+        videoUrl: "https://example.com/video6.mp4",
+      }
+    ],
+  },
+  {
+    id: 14,
+    module: "Rutinas los fines de semanas",
+    videos: [
+      {
+        id: "v8",
+        title: "Rutinas los fines de semanas",
+        duration: "1:04",
+        thumbnail: "/placeholder.svg?height=180&width=320",
+        description:
+          "¿Qué piezas necesitas para que el sueño de tu bebé funcione? Aprende a combinarlas para lograr noches más tranquilas.",
+        videoUrl: "https://example.com/video6.mp4",
+      }
+    ],
+  },
+  {
+    id: 15,
+    module: "Afianzando el sueño autónomo",
+    videos: [
+      {
+        id: "v8",
+        title: "Afianzando el sueño autónomo",
+        duration: "1:04",
+        thumbnail: "/placeholder.svg?height=180&width=320",
+        description:
+          "¿Qué piezas necesitas para que el sueño de tu bebé funcione? Aprende a combinarlas para lograr noches más tranquilas.",
+        videoUrl: "https://example.com/video6.mp4",
+      }
+    ],
+  },
+  {
+    id: 16,
+    module: "Regresiones del sueño",
+    videos: [
+      {
+        id: "v8",
+        title: "Regresiones del sueño",
+        duration: "1:04",
+        thumbnail: "/placeholder.svg?height=180&width=320",
+        description:
+          "¿Qué piezas necesitas para que el sueño de tu bebé funcione? Aprende a combinarlas para lograr noches más tranquilas.",
+        videoUrl: "https://example.com/video6.mp4",
+      }
+    ],
+  },
+  {
+    id: 17,
+    module: "Transiciones de sueño",
+    videos: [
+      {
+        id: "v8",
+        title: "Transiciones de sueño",
+        duration: "1:04",
+        thumbnail: "/placeholder.svg?height=180&width=320",
+        description:
+          "¿Qué piezas necesitas para que el sueño de tu bebé funcione? Aprende a combinarlas para lograr noches más tranquilas.",
+        videoUrl: "https://example.com/video6.mp4",
+      }
+    ],
+  },
+  {
+    id: 18,
+    module: "Transiciones de siesta",
+    videos: [
+      {
+        id: "v8",
+        title: "Transiciones de siesta",
+        duration: "1:04",
+        thumbnail: "/placeholder.svg?height=180&width=320",
+        description:
+          "¿Qué piezas necesitas para que el sueño de tu bebé funcione? Aprende a combinarlas para lograr noches más tranquilas.",
+        videoUrl: "https://example.com/video6.mp4",
+      }
+    ],
+  },
+  {
+    id: 19,
+    module: "Autodictado",
+    videos: [
+      {
+        id: "v8",
+        title: "Autodictado",
+        duration: "1:04",
+        thumbnail: "/placeholder.svg?height=180&width=320",
+        description:
+          "¿Qué piezas necesitas para que el sueño de tu bebé funcione? Aprende a combinarlas para lograr noches más tranquilas.",
+        videoUrl: "https://example.com/video6.mp4",
+      }
+    ],
+  },
+  {
+    id: 20,
+    module: "Salidas y vacaciones",
+    videos: [
+      {
+        id: "v8",
+        title: "Salidas y vacaciones",
+        duration: "1:04",
+        thumbnail: "/placeholder.svg?height=180&width=320",
+        description:
+          "¿Qué piezas necesitas para que el sueño de tu bebé funcione? Aprende a combinarlas para lograr noches más tranquilas.",
+        videoUrl: "https://example.com/video6.mp4",
+      }
+    ],
+  },
+  {
+    id: 21,
+    module: "Fin del programa",
+    videos: [
+      {
+        id: "v8",
+        title: "Fin del programa",
+        duration: "1:04",
+        thumbnail: "/placeholder.svg?height=180&width=320",
+        description:
+          "¿Qué piezas necesitas para que el sueño de tu bebé funcione? Aprende a combinarlas para lograr noches más tranquilas.",
+        videoUrl: "https://example.com/video6.mp4",
+      }
+    ],
+  },
+  
 ]
 
 // Helper functions for user progress
@@ -202,32 +473,35 @@ export default function VideosPage() {
             </CardHeader>
             <CardContent>
               <Tabs value={activeTab} onValueChange={setActiveTab} orientation="vertical" className="w-full">
-                <TabsList className="flex flex-col items-stretch justify-start h-auto space-y-1">
-                  {videoProgram.map((module) => {
-                    const progress = calculateModuleProgress(module.id)
+              <div className="h-52 sm:h-72 overflow-y-auto pr-1">
+  <TabsList className="flex flex-col items-stretch justify-start space-y-1">
+    {videoProgram.map((module) => {
+      const progress = calculateModuleProgress(module.id)
 
-                    return (
-                      <TabsTrigger key={module.id} value={module.id.toString()} className="justify-between text-left">
-                        <div className="flex items-center">
-                          {progress === 100 ? (
-                            <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                          ) : (
-                            <div className="mr-2 h-4 w-4 rounded-full border border-gray-300 flex items-center justify-center text-xs">
-                              {module.id}
-                            </div>
-                          )}
-                          <span>{module.module}</span>
-                        </div>
-                        <Badge variant="outline" className="ml-2">
-                          {Math.round(progress)}%
-                        </Badge>
-                      </TabsTrigger>
-                    )
-                  })}
-                </TabsList>
+      return (
+        <TabsTrigger
+          key={module.id}
+          value={module.id.toString()}
+          className="justify-between text-left p-3"
+        >
+          <div className="flex items-center">
+            {progress === 100 ? (
+              <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
+            ) : (
+              <div className="mr-2 h-4 w-4 rounded-full border border-gray-300 flex items-center justify-center text-xs">
+                {module.id}
+              </div>
+            )}
+            <span>{module.module}</span>
+          </div>
+        </TabsTrigger>
+      )
+    })}
+  </TabsList>
+</div>
 
                 {videoProgram.map((module) => (
-                  <TabsContent key={module.id} value={module.id.toString()} className="mt-0 lg:col-span-2">
+                  <TabsContent key={module.id} value={module.id.toString()} className="mt-6 lg:col-span-2">
                     <div className="lg:hidden">
                       <Card>
                         <CardHeader>
@@ -236,7 +510,6 @@ export default function VideosPage() {
                         <CardContent>
                           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             {module.videos.map((video) => (                             
-                                //TODO: Change this   
                                 <VideoPlayer key={video.id}
                                  videoUrl={video.videoUrl}
                                  thumbnail={video.thumbnail}

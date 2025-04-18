@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useAuth } from "@/components/auth-provider"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -12,8 +12,8 @@ import { format } from "date-fns"
 import { es } from "date-fns/locale"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar, AlarmClock, Moon, Sunrise, Sunset, Play, Square, Clock } from "lucide-react"
-import { saveSleepLog, saveNap } from "@/lib/local-storage"
+import { Calendar, AlarmClock, Moon, Sunrise, Sunset, Play, Square, Clock, MoonIcon } from "lucide-react"
+import { saveSleepLog, saveNap,getSleepLogs,getNaps, SleepLog, Nap } from "@/lib/local-storage"
 import {Calendar as NewCalendar} from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 
@@ -47,6 +47,10 @@ export default function ProgramaPage() {
   const [nightWakeStartTime, setNightWakeStartTime] = useState("")
   const [nightWakeEndTime, setNightWakeEndTime] = useState("")
   const [notes, setNotes] = useState("")
+  const [naps,setNaps] = useState<Nap[]>([])
+  const [sleepLogs,setSleepLogs] = useState<SleepLog[]>([])
+  const [seeLogsHistory,setSeeLogsHistory] = useState<boolean>(false)
+
 
   // Estado para minutos previos
   const [previousMinutes, setPreviousMinutes] = useState(0)
@@ -54,7 +58,12 @@ export default function ProgramaPage() {
   // Estado para mostrar mensaje de éxito
   const [showSuccess, setShowSuccess] = useState(false)
   const [successMessage, setSuccessMessage] = useState("")
-
+   useEffect(()=>{
+       const sleepLogs = getSleepLogs("random")
+       setSleepLogs(sleepLogs)
+       const naps = getNaps("random")
+       setNaps(naps)
+   },[])
   // Efecto para el cronómetro
   useState(() => {
     let interval: NodeJS.Timeout | null = null
@@ -187,7 +196,7 @@ export default function ProgramaPage() {
 
       // Mostrar mensaje de éxito
       setShowSuccess(true)
-      setTimeout(() => setShowSuccess(false), 3000)
+      setTimeout(() => setShowSuccess(false), 1500)
 
       // Resetear formulario
       resetForm()
@@ -213,6 +222,7 @@ export default function ProgramaPage() {
   }
 
   return (
+    <>
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Programa de Sueño</h1>
@@ -237,7 +247,7 @@ export default function ProgramaPage() {
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
-                <NewCalendar  onChange={()=>setSelectedDate} value={selectedDate} />
+              <NewCalendar onChange={(date:any) => setSelectedDate(date)} value={selectedDate} />
 
               </PopoverContent>
             </Popover>
@@ -423,7 +433,7 @@ export default function ProgramaPage() {
 
               <TabsContent value="timer" className="space-y-4">
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex  flex-col items-start mt-4 justify-start sm:flex-row sm:items-justify sm:justify-between">
                     <Label>Cronómetro de siesta</Label>
                     {!isTimerRunning && (
                       <div className="flex items-center gap-2">
@@ -676,7 +686,7 @@ export default function ProgramaPage() {
 
       {/* Mensaje de éxito */}
       {showSuccess && (
-        <div className="fixed bottom-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-md">
+        <div className="fixed bottom-24 z-10 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-md">
           <div className="flex items-center">
             <svg className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
@@ -686,5 +696,100 @@ export default function ProgramaPage() {
         </div>
       )}
     </div>
+    <Button onClick={()=> setSeeLogsHistory(prev=>!prev)} className="mt-4 mb-4">
+      {seeLogsHistory ? 'Ocultar historial del sueño' : 'Ver historial del sueño'}
+      </Button>
+    {seeLogsHistory ? 
+    <Card>
+    <CardHeader>
+      <CardTitle>Historial de Sueño</CardTitle>
+      <CardDescription>Visualiza los registros de sueño anteriores</CardDescription>
+    </CardHeader>
+    <CardContent>
+      {sleepLogs.length === 0 && naps.length === 0 ? (
+        <div className="flex h-[200px] items-center justify-center">
+          <div className="flex flex-col items-center text-center">
+            <MoonIcon className="h-16 w-16 text-gray-300" />
+            <p className="mt-4 text-gray-500">
+              Aún no hay registros de sueño. Comienza a registrar el sueño de tu hijo para ver el historial aquí.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {sleepLogs.length > 0 && (
+            <div>
+              <h3 className="mb-2 font-medium">Sueño Nocturno</h3>
+              <div className="space-y-2">
+                {sleepLogs.map((log) => (
+                  <div key={log.id} className="rounded-lg border p-3">
+                    <div className="flex justify-between">
+                      <div className="font-medium">{new Date(log.date).toLocaleDateString()}</div>
+                      <div className="text-sm text-gray-500">
+                        {log.sleepTime} 
+                      </div>
+                    </div>
+                    <div className="mt-1 text-sm">Despertares: {log.wakeups}</div>
+                    {log.notes && (
+                      <div className="mt-2">
+                        <p className="text-xs font-medium text-gray-500">Detalles de despertares:</p>
+                        <div className="mt-1 space-y-1">
+                          {(() => {
+                            try {
+                              const wakeupData = JSON.parse(log.notes) 
+                              return wakeupData.map((event:any, index:any) => (
+                                <div key={index} className="text-xs text-gray-600 border-l-2 border-gray-200 pl-2">
+                                  <span className="font-medium">{event.time}</span>
+                                  {event.endTime && (
+                                    <>
+                                      <span> - {event.endTime}</span>
+                                      <span className="ml-2 text-xs bg-gray-100 px-1 py-0.5 rounded-full">
+                                        {event.duration ? formatDuration(event.duration) : ""}
+                                      </span>
+                                    </>
+                                  )}
+                                  {event.notes && <span className="block mt-0.5 ml-2">{event.notes}</span>}
+                                </div>
+                              ))
+                            } catch (e) {
+                              return <div className="text-xs text-gray-600">{log.notes}</div>
+                            }
+                          })()}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {naps.length > 0 && (
+            <div>
+              <h3 className="mb-2 font-medium">Siestas</h3>
+              <div className="space-y-2">
+                {naps.map((nap) => (
+                  <div key={nap.id} className="rounded-lg border p-3">
+                    <div className="flex justify-between">
+                      <div className="font-medium">{new Date(nap.date).toLocaleDateString()}</div>
+                      <div className="text-sm text-gray-500">
+                        {nap.startTime} - {nap.endTime}
+                      </div>
+                    </div>
+                    {nap.notes && <div className="mt-1 text-sm text-gray-600">{nap.notes}</div>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </CardContent>
+  </Card>
+    : <></> }
+    
+    </>
+
+
   )
 }

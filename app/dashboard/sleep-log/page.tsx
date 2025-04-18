@@ -127,13 +127,13 @@ export default function ProgramaPage() {
 
   // Función para guardar los datos
   const handleSave = () => {
-    if (!user) return
+    // if (!user) return
 
     try {
       if (activeWidget === "despertar") {
         // Guardar hora de despertar
         saveSleepLog({
-          userId: user.id,
+          userId: "randomUser",
           date: formattedDate,
           sleepTime: "", // Se completará cuando se registre la hora de acostarse
           wakeTime: wakeUpTime,
@@ -145,7 +145,7 @@ export default function ProgramaPage() {
       } else if (activeWidget === "acostarse") {
         // Guardar hora de acostarse
         saveSleepLog({
-          userId: user.id,
+          userId: "random",
           date: formattedDate,
           sleepTime: bedTime,
           wakeTime: "", // Se completará cuando se registre la hora de despertar
@@ -157,7 +157,7 @@ export default function ProgramaPage() {
       } else if (activeWidget === "siesta") {
         // Guardar siesta
         saveNap({
-          userId: user.id,
+          userId: "random",
           date: formattedDate,
           startTime: napStartTime,
           endTime: napEndTime,
@@ -174,7 +174,7 @@ export default function ProgramaPage() {
         }
 
         saveSleepLog({
-          userId: user.id,
+          userId: "random",
           date: formattedDate,
           sleepTime: "",
           wakeTime: "",

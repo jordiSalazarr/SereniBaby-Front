@@ -73,7 +73,7 @@ export default function Dashboard() {
           <CardDescription>Conoce cómo SereniBaby te ayudará a mejorar el sueño de tu hijo</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="aspect-video overflow-hidden rounded-md h-96 w-3/4 ml-auto mr-auto mt-5">
+          <div className="aspect-video overflow-hidden rounded-md h-64 w-full sm:h-96 sm:w-3/4 ml-auto mr-auto mt-5">
             <iframe
               className="h-96 w-full ml-auto mr-auto"
               src="https://www.youtube.com/embed/GKRXlLAyHKY"

@@ -10,6 +10,9 @@ import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { SendIcon, User } from "lucide-react"
 import { sendMessage } from "@/utils/sendMessage"
+import Markdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+
 
 type Message = {
   id: string
@@ -143,7 +146,7 @@ export default function Chatbot() {
                       message.sender === "user" ? "bg-secondary text-white" : "bg-accent text-gray-800"
                     }`}
                   >
-                    <p>{message.content}</p>
+                    <Markdown remarkPlugins={[remarkGfm]}>{message.content}</Markdown>
                     <p className="mt-1 text-xs opacity-70">
                       {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </p>

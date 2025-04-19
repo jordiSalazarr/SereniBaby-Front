@@ -58,6 +58,25 @@ export default function ProgramaPage() {
   // Estado para mostrar mensaje de éxito
   const [showSuccess, setShowSuccess] = useState(false)
   const [successMessage, setSuccessMessage] = useState("")
+  const [open, setOpen] = useState(false)
+
+  const handleDateChange = (date: Date) => {
+    setSelectedDate(date)
+    setOpen(false) // Cierra el Popover al seleccionar una fecha
+  }
+  useEffect(() => {
+    let interval: NodeJS.Timeout
+  
+    if (isTimerRunning && timerStartTime) {
+      interval = setInterval(() => {
+        const now = new Date()
+        const elapsedSeconds = Math.floor((now.getTime() - timerStartTime.getTime()) / 1000)
+        setTimerDuration(elapsedSeconds)
+      }, 1000)
+    }
+  
+    return () => clearInterval(interval)
+  }, [isTimerRunning, timerStartTime])
    useEffect(()=>{
        const sleepLogs = getSleepLogs("random")
        setSleepLogs(sleepLogs)
@@ -240,14 +259,14 @@ export default function ProgramaPage() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            <Popover>
+          <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-full sm:w-auto justify-start text-left font-normal">
                 {format(selectedDate, "PPP", { locale: es })}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
-              <NewCalendar onChange={(date:any) => setSelectedDate(date)} value={selectedDate} />
+                <NewCalendar  onChange={(date:any)=>handleDateChange(date)} value={selectedDate} />
 
               </PopoverContent>
             </Popover>

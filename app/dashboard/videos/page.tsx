@@ -352,14 +352,35 @@ const markVideoAsCompleted = (userId: string, videoId: string) => {
   }
 }
 
+
+
 export default function VideosPage() {
   const { user } = useAuth()
   const [activeTab, setActiveTab] = useState("1")
   const [selectedVideo, setSelectedVideo] = useState<any>(null)
+  const [seenVideos, setSeenVideos] = useState<any[]>([])
   const [userProgress, setUserProgress] = useState<{ completedVideos: string[]; lastWatched: string | null }>({
     completedVideos: [],
     lastWatched: null,
   })
+
+  const handleMarkVideoAsSeen = (video:any) =>{
+    for( let i = 0; i < seenVideos.length; i++){
+      if (seenVideos[i].id === video.id){
+        return
+      }
+    }
+    setSeenVideos(prev => [...prev,video])
+  }
+  const hasSeenVideo = (video:any) =>{
+    for( let i = 0; i < seenVideos.length; i++){
+      if (seenVideos[i].id === video.id){
+        return true
+      }
+    }
+    return false
+
+  }
 
   // Calculate total videos and completed videos
   const totalVideos = videoProgram.reduce((acc, module) => acc + module.videos.length, 0)
@@ -440,7 +461,7 @@ export default function VideosPage() {
   }
 
   const calculateTotalProgress = () => {
-    return (userProgress.completedVideos.length / totalVideos) * 100
+    return (seenVideos.length / totalVideos) * 100
   }
 
   return (
@@ -456,7 +477,7 @@ export default function VideosPage() {
             <CardTitle>Tu Progreso</CardTitle>
             <div className="mt-2 md:mt-0">
               <Badge variant="outline" className="text-primary">
-                {userProgress.completedVideos.length} de {totalVideos} videos completados
+                {seenVideos.length} de {totalVideos} videos completados
               </Badge>
             </div>
           </div>
@@ -482,13 +503,13 @@ export default function VideosPage() {
         <TabsTrigger
           key={module.id}
           value={module.id.toString()}
-          className="justify-between text-left p-3"
+          className="justify-between text-left p-3 bg-white z-10"
         >
-          <div className="flex items-center">
+          <div className="flex items-center bg-white w-full h-full">
             {progress === 100 ? (
               <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
             ) : (
-              <div className="mr-2 h-4 w-4 rounded-full border border-gray-300 flex items-center justify-center text-xs">
+              <div className="mr-2 h-4 w-4 rounded-full border  flex items-center justify-center text-xs">
                 {module.id}
               </div>
             )}
@@ -509,14 +530,17 @@ export default function VideosPage() {
                         </CardHeader>
                         <CardContent>
                           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            {module.videos.map((video) => (                             
+                            {module.videos.map((video) => (   
+                                                      
                                 <VideoPlayer key={video.id}
                                  videoUrl={video.videoUrl}
                                  thumbnail={video.thumbnail}
                                  onComplete={handleVideoComplete}
                                  />
+
                                 )
                             )}
+
                           </div>
                         </CardContent>
                       </Card>
@@ -534,16 +558,22 @@ export default function VideosPage() {
               activeTab === module.id.toString() && (
                 <Card key={module.id}>
                   <CardHeader>
-                    <CardTitle>{module.module}</CardTitle>
+                    <CardTitle>{module.module} -<span className="text-[#75DBD1]"> Dia {module.id}</span></CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-1 h-80">
                       {module.videos.map((video) => (
+                        <>
                            <VideoPlayer key={video.id}
                            videoUrl={video.videoUrl}
                            thumbnail={video.thumbnail}
                            onComplete={handleVideoComplete}
                            />
+                           <Button className={hasSeenVideo(video) ? 'bg-slate-300 hover:bg-slate-400' : 'bg-[#75DBD1]'} onClick={()=>handleMarkVideoAsSeen(video)}>
+                             {hasSeenVideo(video) ? '¡Video completado!': 'Marcar como completado '}
+                            
+                            </Button>
+                           </>
                       ))}
                     </div>
                   </CardContent>

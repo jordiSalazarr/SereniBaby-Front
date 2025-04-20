@@ -16,6 +16,7 @@ Te resumo las horas de las siestas y su duración: Siesta 1 8:30h con duración3
 En esta fecha 17/04/2025 mi peque tuvo 2 despertares por la noche, incluyendo 1 tomas de leche y se ha despertado a las 7:00h .
 Te resumo las horas de las siestas y su duración: Siesta 1 9:30h con duración3 0 minutos , Siesta 2 13:30h con duración 1,5h, y esta noche se ha dormido a las 19h.
 ES MUY IMPORTANTE QUE RESPONDAS EN FORMATO MARKDOWN SIEMPRE. Genera listas en markdown si lo ves necesario.
+MUY IMPORTANTE QUE TE LIMITES A DAR INFORMACION EN RELACION A LA PREGUNTA DEL USUARIO, NADA MÁS.
 `
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== 'POST') {

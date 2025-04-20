@@ -431,7 +431,7 @@ export default function VideosPage() {
       for (const module of videoProgram) {
         const videoInModule = module.videos.find((v) => v.id === video.id)
         if (videoInModule) {
-          setActiveTab(module.id.toString())
+          ()=>(module.id.toString())
           break
         }
       }
@@ -464,6 +464,10 @@ export default function VideosPage() {
     return (seenVideos.length / totalVideos) * 100
   }
 
+  const nums =  [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21]
+  const dropdownOptions = nums.map((n) => ({ value: n.toString(), label: n.toString() }));
+
+
   return (
     <div className="space-y-6">
       <div>
@@ -494,9 +498,21 @@ export default function VideosPage() {
             </CardHeader>
             <CardContent>
               <Tabs value={activeTab} onValueChange={setActiveTab} orientation="vertical" className="w-full">
-              <div className="h-52 sm:h-72 overflow-y-auto pr-1">
-  <TabsList className="flex flex-col items-stretch justify-start space-y-1">
-    {videoProgram.map((module) => {
+                <div className="sm:hidden">
+                <select id="day-select" value={activeTab ?? ''} onChange={(e)=>setActiveTab(e.target.value.toString())}>
+        <option value="" disabled>-- Escoge un día --</option>
+        {[...Array(21)].map((_, i) => (
+          <option key={i + 1} value={i + 1}>
+            Día {i + 1}
+          </option>
+        ))}
+      </select>
+
+
+                </div>
+              <div className="h-52 sm:h-72 hidden sm:block overflow-y-auto pr-1">
+           <TabsList className="flex flex-col items-stretch justify-start space-y-1">
+        {videoProgram.map((module) => {
       const progress = calculateModuleProgress(module.id)
 
       return (
@@ -558,7 +574,7 @@ export default function VideosPage() {
               activeTab === module.id.toString() && (
                 <Card key={module.id}>
                   <CardHeader>
-                    <CardTitle>{module.module} -<span className="text-[#75DBD1]"> Dia {module.id}</span></CardTitle>
+                    <CardTitle>{module.module} -<span className="text-[#75DBD1]"> Día {module.id}</span></CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-1 h-80">
@@ -569,12 +585,14 @@ export default function VideosPage() {
                            thumbnail={video.thumbnail}
                            onComplete={handleVideoComplete}
                            />
-                           <Button className={hasSeenVideo(video) ? 'bg-slate-300 hover:bg-slate-400' : 'bg-[#75DBD1]'} onClick={()=>handleMarkVideoAsSeen(video)}>
+                            <Button className={hasSeenVideo(video) ? 'bg-slate-300 hover:bg-slate-400' : 'bg-[#75DBD1]'} onClick={()=>handleMarkVideoAsSeen(video)}>
                              {hasSeenVideo(video) ? '¡Video completado!': 'Marcar como completado '}
                             
                             </Button>
+                          
                            </>
                       ))}
+                      
                     </div>
                   </CardContent>
                 </Card>

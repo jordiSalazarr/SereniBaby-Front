@@ -12,8 +12,8 @@ import { format } from "date-fns"
 import { es } from "date-fns/locale"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar, AlarmClock, Moon, Sunrise, Sunset, Play, Square, Clock, MoonIcon } from "lucide-react"
-import { saveSleepLog, saveNap,getSleepLogs,getNaps, SleepLog, Nap } from "@/lib/local-storage"
+import { Calendar, AlarmClock, Moon, Sunrise, Sunset, Play, Square, Clock, MoonIcon, SunIcon, BellIcon, BedDoubleIcon } from "lucide-react"
+import { saveSleepLog, saveNap,getSleepLogs,getNaps, SleepLog, Nap, clearAllSleepLogs, clearAllNaps } from "@/lib/local-storage"
 import {Calendar as NewCalendar} from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 
@@ -21,7 +21,27 @@ import 'react-calendar/dist/Calendar.css';
 type ValuePiece = Date | null;
 
 type Value = ValuePiece | [ValuePiece, ValuePiece];
+const SectionCard = ({ title, icon, children }: { title: string, icon: React.ReactNode, children: React.ReactNode }) => (
+  <div>
+    <h3 className="flex items-center gap-2 text-md font-semibold text-gray-800 mb-3">
+      {icon}
+      {title}
+    </h3>
+    <div className="space-y-2">{children}</div>
+  </div>
+)
 
+const LogItem = ({ date, time, note }: { date: string, time: string, note?: string }) => (
+  <div className="flex flex-col bg-gray-50 px-3 py-2 border text-sm text-gray-700 rounded-lg ">
+  <div className="flex items-center justify-between ">
+    <span>{new Date(date).toLocaleDateString()}</span>
+    <span className="font-medium">{time}</span>
+    
+  </div>
+  {note && <span>{note}</span>}
+ 
+  </div>
+)
 export default function ProgramaPage() {
   const { user } = useAuth()
 
@@ -78,9 +98,9 @@ export default function ProgramaPage() {
     return () => clearInterval(interval)
   }, [isTimerRunning, timerStartTime])
    useEffect(()=>{
-       const sleepLogs = getSleepLogs("random")
+       const sleepLogs = getSleepLogs("randomUser")
        setSleepLogs(sleepLogs)
-       const naps = getNaps("random")
+       const naps = getNaps("randomUser")
        setNaps(naps)
    },[])
   // Efecto para el cronómetro
@@ -107,6 +127,13 @@ export default function ProgramaPage() {
     const secs = seconds % 60
 
     return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
+  }
+
+  const handleResetHistory = () => {
+    clearAllSleepLogs()
+    clearAllNaps()
+    setSleepLogs([])
+    setNaps([])
   }
 
   // Función para iniciar el cronómetro
@@ -160,7 +187,7 @@ export default function ProgramaPage() {
     try {
       if (activeWidget === "despertar") {
         // Guardar hora de despertar
-        saveSleepLog({
+        const newLog = saveSleepLog({
           userId: "randomUser",
           date: formattedDate,
           sleepTime: "", // Se completará cuando se registre la hora de acostarse
@@ -169,11 +196,13 @@ export default function ProgramaPage() {
           notes: notes,
           isSleepHour:false
         })
+        setSleepLogs(prev=>[...prev,newLog])
+
         setSuccessMessage("Hora de despertar guardada correctamente")
       } else if (activeWidget === "acostarse") {
         // Guardar hora de acostarse
-        saveSleepLog({
-          userId: "random",
+        const newLog = saveSleepLog({
+          userId: "randomUser",
           date: formattedDate,
           sleepTime: bedTime,
           wakeTime: "", // Se completará cuando se registre la hora de despertar
@@ -181,16 +210,19 @@ export default function ProgramaPage() {
           notes: notes,
           isSleepHour:true
         })
+        setSleepLogs(prev=>[...prev,newLog])
         setSuccessMessage("Hora de acostarse guardada correctamente")
       } else if (activeWidget === "siesta") {
         // Guardar siesta
-        saveNap({
-          userId: "random",
+        const newNap = saveNap({
+          userId: "randomUser",
           date: formattedDate,
           startTime: napStartTime,
           endTime: napEndTime,
           notes: notes,
         })
+        setNaps(prev=>[...prev,newNap])
+
         setSuccessMessage("Siesta guardada correctamente")
       } else if (activeWidget === "despertar-nocturno") {
         // Guardar despertar nocturno como nota en el registro de sueño
@@ -201,8 +233,8 @@ export default function ProgramaPage() {
           notes: notes,
         }
 
-        saveSleepLog({
-          userId: "random",
+        const newLog = saveSleepLog({
+          userId: "randomUser",
           date: formattedDate,
           sleepTime: "",
           wakeTime: "",
@@ -210,6 +242,7 @@ export default function ProgramaPage() {
           notes: JSON.stringify([wakeupEvent]),
           isSleepHour:true
         })
+        setSleepLogs(prev=>[...prev,newLog])
         setSuccessMessage("Despertar nocturno guardado correctamente")
       }
 
@@ -718,94 +751,109 @@ export default function ProgramaPage() {
     <Button onClick={()=> setSeeLogsHistory(prev=>!prev)} className="mt-4 mb-4">
       {seeLogsHistory ? 'Ocultar historial del sueño' : 'Ver historial del sueño'}
       </Button>
-    {seeLogsHistory ? 
-    <Card>
+      {seeLogsHistory && (
+  <Card>
     <CardHeader>
       <CardTitle>Historial de Sueño</CardTitle>
       <CardDescription>Visualiza los registros de sueño anteriores</CardDescription>
+      {sleepLogs.length > 0 || naps.length > 0 ? <Button className="w-40 bg-red-500 hover:bg-red-600" onClick={handleResetHistory}>Reset del historial</Button>:<></>}
     </CardHeader>
     <CardContent>
-      {sleepLogs.length === 0 && naps.length === 0 ? (
-        <div className="flex h-[200px] items-center justify-center">
-          <div className="flex flex-col items-center text-center">
-            <MoonIcon className="h-16 w-16 text-gray-300" />
-            <p className="mt-4 text-gray-500">
-              Aún no hay registros de sueño. Comienza a registrar el sueño de tu hijo para ver el historial aquí.
-            </p>
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {sleepLogs.length > 0 && (
-            <div>
-              <h3 className="mb-2 font-medium">Sueño Nocturno</h3>
-              <div className="space-y-2">
-                {sleepLogs.map((log) => (
-                  <div key={log.id} className="rounded-lg border p-3">
-                    <div className="flex justify-between">
-                      <div className="font-medium">{new Date(log.date).toLocaleDateString()}</div>
-                      <div className="text-sm text-gray-500">
-                        {log.sleepTime} 
-                      </div>
-                    </div>
-                    <div className="mt-1 text-sm">Despertares: {log.wakeups}</div>
-                    {log.notes && (
-                      <div className="mt-2">
-                        <p className="text-xs font-medium text-gray-500">Detalles de despertares:</p>
-                        <div className="mt-1 space-y-1">
-                          {(() => {
-                            try {
-                              const wakeupData = JSON.parse(log.notes) 
-                              return wakeupData.map((event:any, index:any) => (
-                                <div key={index} className="text-xs text-gray-600 border-l-2 border-gray-200 pl-2">
-                                  <span className="font-medium">{event.time}</span>
-                                  {event.endTime && (
-                                    <>
-                                      <span> - {event.endTime}</span>
-                                      <span className="ml-2 text-xs bg-gray-100 px-1 py-0.5 rounded-full">
-                                        {event.duration ? formatDuration(event.duration) : ""}
-                                      </span>
-                                    </>
-                                  )}
-                                  {event.notes && <span className="block mt-0.5 ml-2">{event.notes}</span>}
-                                </div>
-                              ))
-                            } catch (e) {
-                              return <div className="text-xs text-gray-600">{log.notes}</div>
-                            }
-                          })()}
-                        </div>
-                      </div>
+  {sleepLogs.length === 0 && naps.length === 0 ? (
+    <div className="flex h-[200px] items-center justify-center">
+      <div className="flex flex-col items-center text-center">
+        <MoonIcon className="h-16 w-16 text-gray-300" />
+        <p className="mt-4 text-gray-500">
+          Aún no hay registros de sueño. Comienza a registrar el sueño de tu hijo para ver el historial aquí.
+        </p>
+      </div>
+    </div>
+  ) : (
+    <div className="space-y-6">
+      {/* 🛌 Horas de ir a dormir */}
+      {sleepLogs.some((log) => log.isSleepHour) && (
+        <SectionCard title="Horas de ir a dormir" icon={<MoonIcon className="w-5 h-5 text-indigo-500" />}>
+          {sleepLogs.filter(log => log.isSleepHour).map(log => (
+            <LogItem
+              key={`sleep-${log.id}`}
+              date={log.date}
+              time={log.sleepTime}
+              note={log.notes || ""}
+            />
+          ))}
+        </SectionCard>
+      )}
+
+      {/* 🌅 Horas de despertar */}
+      {sleepLogs.some((log) => !log.isSleepHour) && (
+        <SectionCard title="Horas de despertar" icon={<SunIcon className="w-5 h-5 text-yellow-500" />}>
+          {sleepLogs.filter(log => !log.isSleepHour).map(log => (
+            <LogItem
+              key={`wake-${log.id}`}
+              date={log.date}
+              time={log.wakeTime || "No registrado"}
+              note={log.notes ||""}
+            />
+            
+          ))}
+        </SectionCard>
+      )}
+
+      {/* 🌙 Despertares nocturnos */}
+      {sleepLogs.some(log => log.notes) && (
+        <SectionCard title="Despertares nocturnos" icon={<BellIcon className="w-5 h-5 text-pink-500" />}>
+          {sleepLogs.map(log => {
+            let wakeupData = []
+            try {
+              wakeupData = JSON.parse(log.notes)
+            } catch (e) {
+              return null
+            }
+
+            return (
+              <div key={`wakeup-${log.id}`} className="rounded-lg bg-gray-50 p-3 border">
+                <div className="text-sm font-medium text-gray-700 mb-2">{new Date(log.date).toLocaleDateString()}</div>
+                {wakeupData.map((event: any, index: number) => (
+                  <div key={index} className="pl-3 border-l-4 border-gray-200 mb-2 text-sm">
+                    <span className="font-semibold">{event.time}</span>
+                    {event.endTime && <> - {event.endTime}</>}
+                    {event.duration && (
+                      <span className="ml-2 bg-pink-100 text-pink-800 text-xs rounded-full px-2 py-0.5">
+                        {formatDuration(event.duration)}
+                      </span>
+                    )}
+                    {event.notes && (
+                      <div className="text-xs text-gray-500 mt-1">{event.notes}</div>
                     )}
                   </div>
                 ))}
               </div>
-            </div>
-          )}
-
-          {naps.length > 0 && (
-            <div>
-              <h3 className="mb-2 font-medium">Siestas</h3>
-              <div className="space-y-2">
-                {naps.map((nap) => (
-                  <div key={nap.id} className="rounded-lg border p-3">
-                    <div className="flex justify-between">
-                      <div className="font-medium">{new Date(nap.date).toLocaleDateString()}</div>
-                      <div className="text-sm text-gray-500">
-                        {nap.startTime} - {nap.endTime}
-                      </div>
-                    </div>
-                    {nap.notes && <div className="mt-1 text-sm text-gray-600">{nap.notes}</div>}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+            )
+          })}
+        </SectionCard>
       )}
-    </CardContent>
+
+      {/* 😴 Siestas */}
+      {naps.length > 0 && (
+        <SectionCard title="Siestas" icon={<BedDoubleIcon className="w-5 h-5 text-green-500" />}>
+          {naps.map(nap => (
+            <div key={nap.id} className="rounded-lg bg-gray-50 p-3 border">
+              <div className="flex justify-between text-sm text-gray-700">
+                <span>{new Date(nap.date).toLocaleDateString()}</span>
+                <span>{nap.startTime} - {nap.endTime}</span>
+              </div>
+              {nap.notes && <div className="mt-1 text-xs text-gray-500">{nap.notes}</div>}
+            </div>
+          ))}
+        </SectionCard>
+      )}
+    </div>
+  )}
+</CardContent>
+
   </Card>
-    : <></> }
+)}
+
     
     </>
 

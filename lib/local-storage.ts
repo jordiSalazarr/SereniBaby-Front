@@ -160,6 +160,27 @@ export const saveNap = (nap: Omit<Nap, "id" | "createdAt">) => {
   return newNap
 }
 
+export const deleteSleepLog = (id: string) => {
+  const logs = localStorage.getItem(SLEEP_LOGS_KEY)
+  if (!logs) return
+
+  const allLogs: SleepLog[] = JSON.parse(logs)
+  const updatedLogs = allLogs.filter((log) => log.id !== id)
+
+  localStorage.setItem(SLEEP_LOGS_KEY, JSON.stringify(updatedLogs))
+}
+
+export const deleteNap = (id: string) => {
+  const naps = localStorage.getItem(NAPS_KEY)
+  if (!naps) return
+
+  const allNaps: Nap[] = JSON.parse(naps)
+  const updatedNaps = allNaps.filter((nap) => nap.id !== id)
+
+  localStorage.setItem(NAPS_KEY, JSON.stringify(updatedNaps))
+}
+
+
 // Children management
 export const addChild = (userId: string, child: Omit<Child, "id">) => {
   const users = getUsers()
@@ -191,4 +212,12 @@ export const removeChild = (userId: string, childId: string) => {
   setCurrentUser(users[userIndex])
 
   return true
+}
+
+export const clearAllSleepLogs = () => {
+  localStorage.removeItem(SLEEP_LOGS_KEY)
+}
+
+export const clearAllNaps = () => {
+  localStorage.removeItem(NAPS_KEY)
 }

@@ -106,7 +106,7 @@ export default function Navbar() {
       </div>
 
       {/* Add padding to the bottom of the page to account for the fixed navigation */}
-      <div className="h-16 md:hidden"></div>
+      <div className="h-5 md:hidden"></div>
     </>
   )
 }

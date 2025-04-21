@@ -547,12 +547,18 @@ export default function VideosPage() {
                         <CardContent>
                           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             {module.videos.map((video) => (   
-                                                      
+                                <>
                                 <VideoPlayer key={video.id}
-                                 videoUrl={video.videoUrl}
-                                 thumbnail={video.thumbnail}
-                                 onComplete={handleVideoComplete}
-                                 />
+                                videoUrl={video.videoUrl}
+                                thumbnail={video.thumbnail}
+                                onComplete={handleVideoComplete}
+                                />
+                                 <Button className={hasSeenVideo(video) ? 'bg-slate-300 hover:bg-slate-400 ' : 'bg-[#75DBD1] hover:cursor-pointer'} onClick={()=>handleMarkVideoAsSeen(video)}>
+                                  {hasSeenVideo(video) ? '¡Video completado!': 'Marcar como completado '}
+                                 
+                                 </Button>
+                               
+                                </>
 
                                 )
                             )}

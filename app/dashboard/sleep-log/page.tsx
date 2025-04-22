@@ -770,6 +770,35 @@ export default function ProgramaPage() {
     </div>
   ) : (
     <div className="space-y-6">
+       {/* 🌅 Horas de despertar */}
+       {sleepLogs.some((log) => !log.isSleepHour) && (
+        <SectionCard title="Horas de despertar" icon={<SunIcon className="w-5 h-5 text-yellow-500" />}>
+          {sleepLogs.filter(log => !log.isSleepHour).map(log => (
+            <LogItem
+              key={`wake-${log.id}`}
+              date={log.date}
+              time={log.wakeTime || "No registrado"}
+              note={log.notes ||""}
+            />
+            
+          ))}
+        </SectionCard>
+      )}
+
+       {/* 😴 Siestas */}
+       {naps.length > 0 && (
+        <SectionCard title="Siestas" icon={<BedDoubleIcon className="w-5 h-5 text-green-500" />}>
+          {naps.map(nap => (
+            <div key={nap.id} className="rounded-lg bg-gray-50 p-3 border">
+              <div className="flex justify-between text-sm text-gray-700">
+                <span>{new Date(nap.date).toLocaleDateString()}</span>
+                <span>{nap.startTime} - {nap.endTime}</span>
+              </div>
+              {nap.notes && <div className="mt-1 text-xs text-gray-500">{nap.notes}</div>}
+            </div>
+          ))}
+        </SectionCard>
+      )}
       {/* 🛌 Horas de ir a dormir */}
       {sleepLogs.some((log) => log.isSleepHour) && (
         <SectionCard title="Horas de ir a dormir" icon={<MoonIcon className="w-5 h-5 text-indigo-500" />}>
@@ -784,20 +813,7 @@ export default function ProgramaPage() {
         </SectionCard>
       )}
 
-      {/* 🌅 Horas de despertar */}
-      {sleepLogs.some((log) => !log.isSleepHour) && (
-        <SectionCard title="Horas de despertar" icon={<SunIcon className="w-5 h-5 text-yellow-500" />}>
-          {sleepLogs.filter(log => !log.isSleepHour).map(log => (
-            <LogItem
-              key={`wake-${log.id}`}
-              date={log.date}
-              time={log.wakeTime || "No registrado"}
-              note={log.notes ||""}
-            />
-            
-          ))}
-        </SectionCard>
-      )}
+     
 
       {/* 🌙 Despertares nocturnos */}
       {sleepLogs.some(log => log.notes) && (
@@ -833,20 +849,7 @@ export default function ProgramaPage() {
         </SectionCard>
       )}
 
-      {/* 😴 Siestas */}
-      {naps.length > 0 && (
-        <SectionCard title="Siestas" icon={<BedDoubleIcon className="w-5 h-5 text-green-500" />}>
-          {naps.map(nap => (
-            <div key={nap.id} className="rounded-lg bg-gray-50 p-3 border">
-              <div className="flex justify-between text-sm text-gray-700">
-                <span>{new Date(nap.date).toLocaleDateString()}</span>
-                <span>{nap.startTime} - {nap.endTime}</span>
-              </div>
-              {nap.notes && <div className="mt-1 text-xs text-gray-500">{nap.notes}</div>}
-            </div>
-          ))}
-        </SectionCard>
-      )}
+     
     </div>
   )}
 </CardContent>

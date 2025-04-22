@@ -120,13 +120,13 @@ export default function Chatbot() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">SonIA</h1>
-        <p className="mt-2 text-gray-600">Consulta con nuestra asesora de sueño virtual 24/7 sobre el sueño de Carlitos.</p>
+        <h1 className="text-2xl font-bold text-gray-900">SonIA</h1>
+        <p className="mt-1 text-gray-600">Consulta con nuestra asesora de sueño virtual 24/7 sobre el sueño de Carlitos.</p>
       </div>
 
-      <Card className="h-[70vh] flex flex-col">
+      <Card className="h-[65vh] flex flex-col">
         <CardHeader>
           <CardDescription>Haz preguntas sobre rutinas de sueño, despertares nocturnos, siestas y más</CardDescription>
         </CardHeader>

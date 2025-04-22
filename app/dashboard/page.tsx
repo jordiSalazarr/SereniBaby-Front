@@ -73,16 +73,17 @@ export default function Dashboard() {
           <CardDescription>Conoce cómo SereniBaby te ayudará a mejorar el sueño de tu hijo</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="aspect-video overflow-hidden rounded-md h-64 w-full sm:h-96 sm:w-3/4 ml-auto mr-auto mt-5">
-            <iframe
-              className="h-96 w-full ml-auto mr-auto"
-              src="https://www.youtube.com/embed/GKRXlLAyHKY"
-              title="Video introductorio de SereniBaby"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
-          </div>
+        <div className="aspect-video w-full sm:w-3/4 mx-auto mt-5">
+  <iframe
+    className="w-full h-full"
+    src="https://www.youtube.com/embed/GKRXlLAyHKY"
+    title="Video introductorio de SereniBaby"
+    frameBorder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowFullScreen
+  ></iframe>
+</div>
+
         </CardContent>
       </Card>
 
@@ -98,35 +99,42 @@ export default function Dashboard() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-lg bg-[#7bd7c7]  p-4">
-              <div className="flex items-center gap-2">
-                <Sun className="h-5 w-5 text-primary" />
-                <h3 className="font-medium">Horas de despertar</h3>
+           
+            <div className="mt-4 space-y-2">
+            <div className="flex items-center gap-2">
+                <Clock className="h-5 w-5 text-secondary" />
+                <h3 className="font-medium">Ventana de sueño</h3>
               </div>
-              <p className="mt-2 text-lg font-semibold">{sleepSchedule.wakeTime}</p>
+             <p className="font-medium">• Hora de despertar: 7:30</p>
+             <p className="font-medium">• Siesta 1: 9:00h (1h - 1.5h)</p>
+             <p className="font-medium">• Siesta 2: 13:00h (1.5h - 2h)</p>
+             <p className="font-medium">• Hora de acostarse: 19:00h - 19:30h</p>
+</div>
+
             </div>
 
             <div className="rounded-lg bg-[#e684c3] p-4">
               <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-secondary" />
-                <h3 className="font-medium">Siesta 1</h3>
+                <Clock className="h-5 w-5 text-secondary mt-8" />
+                <h3 className="font-medium mt-0 pt-0">Ventana de sueño</h3>
               </div>
-              <p className="mt-2 text-lg font-semibold">{sleepSchedule.nap1}</p>
+              <p className="mt-2 text-lg font-semibold">• 4 horas</p>
             </div>
 
             <div className="rounded-lg bg-[#7bd7c7]  p-4">
               <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-accent" />
-                <h3 className="font-medium">Siesta 2</h3>
+                <Clock className="h-5 w-5 text-accent mt-8" />
+                <h3 className="font-medium">Ambiente de sueño</h3>
               </div>
-              <p className="mt-2 text-lg font-semibold">{sleepSchedule.nap2}</p>
+              <p className="mt-2 text-lg font-semibold">Preparar 30 minutos antes de ir a dormir</p>
             </div>
 
-            <div className="rounded-lg bg-[#e684c3] p-4">
+            <div className="rounded-lg bg-[#e684c3] p-4 ">
               <div className="flex items-center gap-2">
-                <MoonIcon className="h-5 w-5 text-[#e684c3]" />
-                <h3 className="font-medium">Hora de acostarse</h3>
+                <MoonIcon className="h-5 w-5 text-[#e684c3] mt-8" />
+                <h3 className="font-medium">Tomas de leche nocturnas</h3>
               </div>
-              <p className="mt-2 text-lg font-semibold">{sleepSchedule.bedtime}</p>
+              <p className="mt-2 text-lg font-semibold">1 toma de leche a las 3:00</p>
             </div>
           </div>
 

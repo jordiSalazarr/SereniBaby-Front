@@ -522,14 +522,8 @@ export default function VideosPage() {
           className="justify-between text-left p-3 bg-white z-10"
         >
           <div className="flex items-center bg-white w-full h-full">
-            {progress === 100 ? (
-              <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-            ) : (
-              <div className="mr-2 h-4 w-4 rounded-full border  flex items-center justify-center text-xs">
-                {module.id}
-              </div>
-            )}
-            <span>{module.module}</span>
+          
+            <span>· Día {module.id} ({module.module})</span>
           </div>
         </TabsTrigger>
       )
@@ -580,7 +574,7 @@ export default function VideosPage() {
               activeTab === module.id.toString() && (
                 <Card key={module.id}>
                   <CardHeader>
-                    <CardTitle>{module.module} -<span className="text-[#75DBD1]"> Día {module.id}</span></CardTitle>
+                    <CardTitle>{module.module}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-1 h-80">

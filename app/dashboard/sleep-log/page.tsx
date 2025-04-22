@@ -16,6 +16,7 @@ import { Calendar, AlarmClock, Moon, Sunrise, Sunset, Play, Square, Clock, MoonI
 import { saveSleepLog, saveNap,getSleepLogs,getNaps, SleepLog, Nap, clearAllSleepLogs, clearAllNaps } from "@/lib/local-storage"
 import {Calendar as NewCalendar} from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import SleepTable from "./components/SleepTable"
 
 
 type ValuePiece = Date | null;
@@ -121,7 +122,7 @@ export default function ProgramaPage() {
   })
 
   // Función para formatear la duración del cronómetro
-  const formatDuration = (seconds: number) => {
+   const formatDuration = (seconds: number) => {
     const hours = Math.floor(seconds / 3600)
     const minutes = Math.floor((seconds % 3600) / 60)
     const secs = seconds % 60
@@ -291,7 +292,7 @@ export default function ProgramaPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col sm:flex-row items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-full sm:w-auto justify-start text-left font-normal">
@@ -303,7 +304,9 @@ export default function ProgramaPage() {
 
               </PopoverContent>
             </Popover>
-            <p className="text-sm text-muted-foreground">Selecciona la fecha para el registro de sueño</p>
+            <Button onClick={()=> setSeeLogsHistory(prev=>!prev)} className="mt-4 mb-4">
+             {seeLogsHistory ? 'Ocultar historial del sueño' : 'Ver historial del sueño'}
+           </Button>
           </div>
         </CardContent>
       </Card>
@@ -341,7 +344,22 @@ export default function ProgramaPage() {
               </div>
             </CardContent>
           </Card>
-
+          <Card
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => setActiveWidget("acostarse")}
+          >
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="rounded-full bg-blue-100 p-3">
+                  <Sunset className="h-6 w-6 text-blue-500" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium">Hora de acostarse</h3>
+                  <p className="text-sm text-gray-500">Registra a qué hora se acostó tu hijo</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
           <Card
             className="cursor-pointer hover:shadow-md transition-shadow"
             onClick={() => setActiveWidget("despertar-nocturno")}
@@ -359,22 +377,7 @@ export default function ProgramaPage() {
             </CardContent>
           </Card>
 
-          <Card
-            className="cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => setActiveWidget("acostarse")}
-          >
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="rounded-full bg-blue-100 p-3">
-                  <Sunset className="h-6 w-6 text-blue-500" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium">Hora de acostarse</h3>
-                  <p className="text-sm text-gray-500">Registra a qué hora se acostó tu hijo</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          
         </div>
       )}
 
@@ -748,11 +751,9 @@ export default function ProgramaPage() {
         </div>
       )}
     </div>
-    <Button onClick={()=> setSeeLogsHistory(prev=>!prev)} className="mt-4 mb-4">
-      {seeLogsHistory ? 'Ocultar historial del sueño' : 'Ver historial del sueño'}
-      </Button>
+    
       {seeLogsHistory && (
-  <Card>
+  <Card className="mt-4">
     <CardHeader>
       <CardTitle>Historial de Sueño</CardTitle>
       <CardDescription>Visualiza los registros de sueño anteriores</CardDescription>
@@ -760,7 +761,7 @@ export default function ProgramaPage() {
     </CardHeader>
     <CardContent>
   {sleepLogs.length === 0 && naps.length === 0 ? (
-    <div className="flex h-[200px] items-center justify-center">
+    <div className="flex h-[200px] items-center mt-4 justify-center">
       <div className="flex flex-col items-center text-center">
         <MoonIcon className="h-16 w-16 text-gray-300" />
         <p className="mt-4 text-gray-500">
@@ -769,87 +770,11 @@ export default function ProgramaPage() {
       </div>
     </div>
   ) : (
-    <div className="space-y-6">
-       {/* 🌅 Horas de despertar */}
-       {sleepLogs.some((log) => !log.isSleepHour) && (
-        <SectionCard title="Horas de despertar" icon={<SunIcon className="w-5 h-5 text-yellow-500" />}>
-          {sleepLogs.filter(log => !log.isSleepHour).map(log => (
-            <LogItem
-              key={`wake-${log.id}`}
-              date={log.date}
-              time={log.wakeTime || "No registrado"}
-              note={log.notes ||""}
-            />
-            
-          ))}
-        </SectionCard>
-      )}
-
-       {/* 😴 Siestas */}
-       {naps.length > 0 && (
-        <SectionCard title="Siestas" icon={<BedDoubleIcon className="w-5 h-5 text-green-500" />}>
-          {naps.map(nap => (
-            <div key={nap.id} className="rounded-lg bg-gray-50 p-3 border">
-              <div className="flex justify-between text-sm text-gray-700">
-                <span>{new Date(nap.date).toLocaleDateString()}</span>
-                <span>{nap.startTime} - {nap.endTime}</span>
-              </div>
-              {nap.notes && <div className="mt-1 text-xs text-gray-500">{nap.notes}</div>}
-            </div>
-          ))}
-        </SectionCard>
-      )}
-      {/* 🛌 Horas de ir a dormir */}
-      {sleepLogs.some((log) => log.isSleepHour) && (
-        <SectionCard title="Horas de ir a dormir" icon={<MoonIcon className="w-5 h-5 text-indigo-500" />}>
-          {sleepLogs.filter(log => log.isSleepHour).map(log => (
-            <LogItem
-              key={`sleep-${log.id}`}
-              date={log.date}
-              time={log.sleepTime}
-              note={log.notes || ""}
-            />
-          ))}
-        </SectionCard>
-      )}
-
-     
-
-      {/* 🌙 Despertares nocturnos */}
-      {sleepLogs.some(log => log.notes) && (
-        <SectionCard title="Despertares nocturnos" icon={<BellIcon className="w-5 h-5 text-pink-500" />}>
-          {sleepLogs.map(log => {
-            let wakeupData = []
-            try {
-              wakeupData = JSON.parse(log.notes)
-            } catch (e) {
-              return null
-            }
-
-            return (
-              <div key={`wakeup-${log.id}`} className="rounded-lg bg-gray-50 p-3 border">
-                <div className="text-sm font-medium text-gray-700 mb-2">{new Date(log.date).toLocaleDateString()}</div>
-                {wakeupData.map((event: any, index: number) => (
-                  <div key={index} className="pl-3 border-l-4 border-gray-200 mb-2 text-sm">
-                    <span className="font-semibold">{event.time}</span>
-                    {event.endTime && <> - {event.endTime}</>}
-                    {event.duration && (
-                      <span className="ml-2 bg-pink-100 text-pink-800 text-xs rounded-full px-2 py-0.5">
-                        {formatDuration(event.duration)}
-                      </span>
-                    )}
-                    {event.notes && (
-                      <div className="text-xs text-gray-500 mt-1">{event.notes}</div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )
-          })}
-        </SectionCard>
-      )}
-
-     
+    <div className="space-y-6 mt-4">
+    <SleepTable
+        naps={naps}
+        sleepLogs={sleepLogs}
+    />
     </div>
   )}
 </CardContent>

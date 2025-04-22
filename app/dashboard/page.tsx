@@ -103,7 +103,7 @@ export default function Dashboard() {
             <div className="mt-4 space-y-2">
             <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5 text-secondary" />
-                <h3 className="font-medium">Ventana de sueño</h3>
+                <h3 className="font-bold text-white ">Horarios</h3>
               </div>
              <p className="font-medium">• Hora de despertar: 7:30</p>
              <p className="font-medium">• Siesta 1: 9:00h (1h - 1.5h)</p>
@@ -114,27 +114,27 @@ export default function Dashboard() {
             </div>
 
             <div className="rounded-lg bg-[#e684c3] p-4">
-              <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-secondary mt-8" />
-                <h3 className="font-medium mt-0 pt-0">Ventana de sueño</h3>
+              <div className="flex items-center gap-2 mt-4">
+                <Clock className="h-5 w-5 text-accent " />
+                <h3 className="font-bold text-white mt-0 pt-0">Ventana de sueño</h3>
               </div>
-              <p className="mt-2 text-lg font-semibold">• 4 horas</p>
+              <p className="font-medium mt-3">• 4 horas</p>
             </div>
 
             <div className="rounded-lg bg-[#7bd7c7]  p-4">
-              <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-accent mt-8" />
-                <h3 className="font-medium">Ambiente de sueño</h3>
+              <div className="flex items-center gap-2 mt-4">
+                <Clock className="h-5 w-5 text-[#e684c3]" />
+                <h3 className="font-bold text-white">Ambiente de sueño</h3>
               </div>
-              <p className="mt-2 text-lg font-semibold">Preparar 30 minutos antes de ir a dormir</p>
+              <p className="font-medium mt-3">• Preparar 30 minutos antes de ir a dormir</p>
             </div>
 
             <div className="rounded-lg bg-[#e684c3] p-4 ">
-              <div className="flex items-center gap-2">
-                <MoonIcon className="h-5 w-5 text-[#e684c3] mt-8" />
-                <h3 className="font-medium">Tomas de leche nocturnas</h3>
+              <div className="flex items-center gap-2 mt-4">
+                <MoonIcon className="h-5 w-5 text-accent" />
+                <h3 className=" font-bold text-white">Tomas de leche nocturnas</h3>
               </div>
-              <p className="mt-2 text-lg font-semibold">1 toma de leche a las 3:00</p>
+              <p className="font-medium mt-3">• 1 toma de leche a las 3:00</p>
             </div>
           </div>
 
